@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  --clr-bg: #F7F6F3;
+  --clr-surface: #FFFFFF;
+  --clr-border: #E8E5DF;
+  --clr-text: #1A1916;
+  --clr-muted: #6B6860;
+  --clr-offender: #E24B4A;
+  --clr-victim: #378ADD;
+  --clr-accent: #0F6E56;
+  --clr-amber: #BA7517;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--clr-border); border-radius: 3px; }
+
+/* chart tooltip */
+.recharts-tooltip-wrapper { outline: none; }
+.custom-tooltip {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--clr-text);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
