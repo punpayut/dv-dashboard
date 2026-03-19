@@ -20,7 +20,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function PeriodChart({ data }: { data: PeriodRow[] }) {
   const max = Math.max(...data.map(d => d.count))
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--clr-border)' }}>
+    <div className="dash-card fade-up p-5">
       <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
         ช่วงเวลาที่เกิดเหตุ
       </div>
@@ -45,7 +45,7 @@ export function PeriodChart({ data }: { data: PeriodRow[] }) {
 
 export function RegionChart({ data }: { data: RegionRow[] }) {
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--clr-border)' }}>
+    <div className="dash-card fade-up p-5">
       <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
         เหตุแยกตามภูมิภาค
       </div>

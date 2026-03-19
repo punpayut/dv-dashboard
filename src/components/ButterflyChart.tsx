@@ -33,13 +33,12 @@ export default function ButterflyChart({ data }: { data: Row[] }) {
   const max = Math.max(...data.flatMap(d => [Math.abs(d.offMale), d.vicFemale])) + 5
 
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--clr-border)' }}>
-      <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
-        โครงสร้างอายุ–เพศ
+    <div className="dash-card fade-up p-5">
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 16 }}>โครงสร้างอายุ–เพศ</span>
+        <span style={{ fontSize: 11, color: 'var(--clr-muted)' }}>% ภายในกลุ่ม</span>
       </div>
-      <div className="text-xs mb-4" style={{ color: 'var(--clr-muted)' }}>
-        ← ผู้กระทำ &nbsp;|&nbsp; ผู้ถูกกระทำ →
-      </div>
+      <div style={{ fontSize: 12, color: 'var(--clr-muted)', marginBottom: 16 }}>← ผู้กระทำ &nbsp;|&nbsp; ผู้ถูกกระทำ →</div>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} layout="vertical" barGap={2} barCategoryGap="25%">
           <CartesianGrid horizontal={false} stroke="#E8E5DF" strokeDasharray="3 3" />

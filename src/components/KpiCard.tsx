@@ -1,38 +1,51 @@
 'use client'
-import clsx from 'clsx'
 
 type Props = {
   label: string
   value: string | number
   sub?: string
   accent?: 'offender' | 'victim' | 'accent' | 'amber'
+  animDelay?: string
 }
 
-const accentColors: Record<string, string> = {
-  offender: '#E24B4A',
-  victim: '#378ADD',
-  accent: '#0F6E56',
-  amber: '#BA7517',
+const accentMap: Record<string, { color: string; bg: string; border: string }> = {
+  offender: { color: 'var(--clr-offender)', bg: 'var(--clr-offender-light)', border: 'var(--clr-offender)' },
+  victim:   { color: 'var(--clr-victim)',   bg: 'var(--clr-victim-light)',   border: 'var(--clr-victim)'   },
+  accent:   { color: 'var(--clr-accent)',   bg: 'var(--clr-accent-light)',   border: 'var(--clr-accent)'   },
+  amber:    { color: 'var(--clr-amber)',    bg: 'var(--clr-amber-light)',    border: 'var(--clr-amber)'    },
 }
 
-export default function KpiCard({ label, value, sub, accent }: Props) {
-  const color = accent ? accentColors[accent] : '#1A1916'
+export default function KpiCard({ label, value, sub, accent, animDelay }: Props) {
+  const a = accent ? accentMap[accent] : null
+
   return (
     <div
-      className="bg-white rounded-2xl p-5 flex flex-col gap-1"
-      style={{ border: '1px solid var(--clr-border)' }}
+      className="dash-card fade-up flex flex-col gap-1 p-5 relative overflow-hidden"
+      style={{
+        background: a ? a.bg : 'var(--clr-surface)',
+        borderLeft: a ? `3px solid ${a.border}` : undefined,
+        animationDelay: animDelay,
+      }}
     >
-      <span className="text-xs font-medium tracking-wide uppercase" style={{ color: 'var(--clr-muted)' }}>
+      <span
+        className="section-label"
+        style={{ color: a ? a.color : 'var(--clr-muted)', opacity: 0.8 }}
+      >
         {label}
       </span>
       <span
-        className="text-3xl font-semibold leading-none mt-1"
-        style={{ fontFamily: 'var(--font-display)', color }}
+        className="leading-none mt-1 font-bold"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 32,
+          color: a ? a.color : 'var(--clr-text)',
+          letterSpacing: '-0.02em',
+        }}
       >
         {value}
       </span>
       {sub && (
-        <span className="text-xs mt-1" style={{ color: 'var(--clr-muted)' }}>
+        <span className="text-xs mt-0.5" style={{ color: a ? a.color : 'var(--clr-muted)', opacity: 0.75 }}>
           {sub}
         </span>
       )}

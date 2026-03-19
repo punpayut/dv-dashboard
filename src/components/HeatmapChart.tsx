@@ -17,7 +17,7 @@ export default function HeatmapChart({ data }: { data: Row[] }) {
   const shortPeriod = (p: string) => p.replace(' – ', '–').replace(':00', '')
 
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--clr-border)' }}>
+    <div className="dash-card fade-up p-5">
       <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
         Hotspot จังหวัด × ช่วงเวลา
       </div>

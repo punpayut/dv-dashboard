@@ -24,13 +24,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function RiskChart({ data }: { data: Row[] }) {
   const sorted = [...data].sort((a, b) => a.offPct - b.offPct)
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--clr-border)' }}>
-      <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
-        ปัจจัยเสี่ยง — ผู้กระทำ vs ผู้ถูกกระทำ
+    <div className="dash-card fade-up p-5">
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 16 }}>ปัจจัยเสี่ยง</span>
+        <span style={{ fontSize: 11, color: 'var(--clr-muted)' }}>ผู้กระทำ vs ผู้ถูกกระทำ</span>
       </div>
-      <div className="text-xs mb-4" style={{ color: 'var(--clr-muted)' }}>
-        ร้อยละของกลุ่มที่มีปัจจัยนั้น
-      </div>
+      <div style={{ fontSize: 12, color: 'var(--clr-muted)', marginBottom: 16 }}>ร้อยละของกลุ่มที่มีปัจจัยนั้น</div>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={sorted} layout="vertical" barGap={4} barCategoryGap="30%">
           <CartesianGrid horizontal={false} stroke="#E8E5DF" strokeDasharray="3 3" />
