@@ -18,13 +18,18 @@ export default function HeatmapChart({ data }: { data: Row[] }) {
 
   return (
     <div className="dash-card fade-up p-5">
-      <div className="mb-1 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
-        Hotspot จังหวัด × ช่วงเวลา
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 19, color: 'var(--clr-text)', lineHeight: 1.2, marginBottom: 4 }}>
+            Hotspot จังหวัด × ช่วงเวลา
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--clr-muted)' }}>
+            Top 10 จังหวัดที่มีเหตุสูงสุด — สีเข้ม = จำนวนมาก
+          </div>
+        </div>
+        <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-subtle)', color: 'var(--clr-muted)', border: '1px solid var(--clr-border)' }}>Top 10</span>
       </div>
-      <div className="text-xs mb-4" style={{ color: 'var(--clr-muted)' }}>
-        Top 10 จังหวัดที่มีเหตุสูงสุด — สีเข้ม = จำนวนมาก
-      </div>
-      <div className="overflow-x-auto">
+      <div style={{ background: '#FAFAF7', borderRadius: 10, border: '1px solid var(--clr-border)', padding: '14px 14px 8px', overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 3 }}>
           <thead>
             <tr>
@@ -74,7 +79,7 @@ export default function HeatmapChart({ data }: { data: Row[] }) {
           </tbody>
         </table>
       </div>
-      <div className="flex items-center gap-2 mt-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
         <span className="text-xs" style={{ color: 'var(--clr-muted)' }}>น้อย</span>
         <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'linear-gradient(to right, #F7F6F3, #E24B4A)' }} />
         <span className="text-xs" style={{ color: 'var(--clr-muted)' }}>มาก</span>
