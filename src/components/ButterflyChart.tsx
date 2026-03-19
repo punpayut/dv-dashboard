@@ -1,7 +1,7 @@
 'use client'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine,
+  ResponsiveContainer, ReferenceLine, Cell,
 } from 'recharts'
 
 type Row = {

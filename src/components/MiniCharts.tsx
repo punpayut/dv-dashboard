@@ -1,5 +1,5 @@
 'use client'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 type PeriodRow = { period: string; count: number }
 type RegionRow = { region: string; count: number }
