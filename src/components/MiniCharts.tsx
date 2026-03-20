@@ -46,7 +46,7 @@ export function PeriodChart({ data }: { data: PeriodRow[] }) {
   return (
     <div className="dash-card fade-up" style={{ padding: '22px 22px 16px' }}>
       <ChartHeader title="ช่วงเวลาที่เกิดเหตุ" subtitle="จำนวนเหตุทั้งหมดในแต่ละช่วงเวลา" badge="4 ช่วงเวลา" />
-      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
+      <div style={{ background: 'var(--clr-panel-soft)', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} barCategoryGap="28%" margin={{ top: 10, right: 12, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />
@@ -79,7 +79,7 @@ export function RegionChart({ data }: { data: RegionRow[] }) {
   return (
     <div className="dash-card fade-up" style={{ padding: '22px 22px 16px' }}>
       <ChartHeader title="การกระจายตามภูมิภาค" subtitle="จำนวนเหตุที่รายงานในแต่ละภูมิภาค" />
-      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
+      <div style={{ background: 'var(--clr-panel-soft)', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} layout="vertical" barCategoryGap="24%" margin={{ top: 0, right: 40, bottom: 0, left: 18 }}>
             <CartesianGrid horizontal={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />

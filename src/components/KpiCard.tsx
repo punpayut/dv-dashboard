@@ -8,58 +8,91 @@ type Props = {
   animDelay?: string
 }
 
-const accentMap: Record<string, { color: string; bg: string; border: string }> = {
-  offender: { color: 'var(--clr-offender)', bg: 'var(--clr-offender-light)', border: 'var(--clr-offender)' },
-  victim: { color: 'var(--clr-victim)', bg: 'var(--clr-victim-light)', border: 'var(--clr-victim)' },
-  accent: { color: 'var(--clr-accent)', bg: 'var(--clr-accent-light)', border: 'var(--clr-accent)' },
-  amber: { color: 'var(--clr-amber)', bg: 'var(--clr-amber-light)', border: 'var(--clr-amber)' },
+const accentMap: Record<string, { gradient: string; shadow: string }> = {
+  offender: {
+    gradient: 'linear-gradient(135deg, #f34d8f 0%, #8c55f2 100%)',
+    shadow: '0 22px 42px rgba(173, 68, 151, 0.24)',
+  },
+  victim: {
+    gradient: 'linear-gradient(135deg, #39c9ff 0%, #3a73ff 100%)',
+    shadow: '0 22px 42px rgba(66, 145, 255, 0.22)',
+  },
+  accent: {
+    gradient: 'linear-gradient(135deg, #7b61ff 0%, #4ab6ff 100%)',
+    shadow: '0 22px 42px rgba(104, 102, 245, 0.24)',
+  },
+  amber: {
+    gradient: 'linear-gradient(135deg, #ffb11f 0%, #ff7a45 100%)',
+    shadow: '0 22px 42px rgba(255, 151, 54, 0.24)',
+  },
 }
 
-export default function KpiCard({ label, value, sub, accent, animDelay }: Props) {
-  const theme = accent ? accentMap[accent] : null
+export default function KpiCard({ label, value, sub, accent = 'accent', animDelay }: Props) {
+  const theme = accentMap[accent]
 
   return (
     <div
-      className="dash-card fade-up"
+      className="fade-up"
       style={{
-        background: theme ? theme.bg : 'rgba(255, 255, 255, 0.9)',
-        borderLeft: theme ? `4px solid ${theme.border}` : undefined,
-        animationDelay: animDelay,
-        padding: 22,
         position: 'relative',
         overflow: 'hidden',
+        borderRadius: 24,
+        padding: 22,
+        animationDelay: animDelay,
+        background: theme.gradient,
+        boxShadow: theme.shadow,
+        color: '#fff',
       }}
     >
       <div
         style={{
           position: 'absolute',
-          right: -24,
-          top: -28,
-          width: 96,
-          height: 96,
+          width: 132,
+          height: 132,
+          top: -42,
+          right: -28,
           borderRadius: '50%',
-          background: theme ? `${theme.border}16` : 'rgba(24, 22, 15, 0.05)',
+          background: 'rgba(255,255,255,0.16)',
         }}
       />
+      <div
+        style={{
+          position: 'absolute',
+          width: 74,
+          height: 74,
+          bottom: -16,
+          left: -12,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.12)',
+        }}
+      />
+
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <span className="section-label" style={{ color: theme ? theme.color : 'var(--clr-muted)', opacity: 0.92 }}>
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.82)',
+            marginBottom: 14,
+          }}
+        >
           {label}
-        </span>
+        </div>
         <div
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2rem, 1.5rem + 1.2vw, 3rem)',
-            color: theme ? theme.color : 'var(--clr-text)',
-            letterSpacing: '-0.03em',
+            fontSize: 'clamp(2.1rem, 1.6rem + 1vw, 3.1rem)',
             lineHeight: 0.95,
-            marginTop: 14,
-            marginBottom: 8,
+            letterSpacing: '-0.04em',
+            marginBottom: 10,
           }}
         >
           {value}
         </div>
         {sub && (
-          <div style={{ fontSize: '0.96rem', color: theme ? theme.color : 'var(--clr-muted)', opacity: 0.78 }}>
+          <div style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.82)', maxWidth: 240 }}>
             {sub}
           </div>
         )}

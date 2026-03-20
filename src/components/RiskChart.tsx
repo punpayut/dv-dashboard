@@ -44,7 +44,7 @@ const CustomTooltip = ({
 
 function SummaryBox({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(247, 244, 238, 0.9)', border: '1px solid var(--clr-border)' }}>
+    <div style={{ padding: '14px 16px', borderRadius: 16, background: 'var(--clr-panel-soft)', border: '1px solid var(--clr-border)' }}>
       <div className="section-label" style={{ marginBottom: 8 }}>
         {label}
       </div>
@@ -86,7 +86,7 @@ export default function RiskChart({ data, summary }: { data: RiskPriorityRow[]; 
       </div>
 
       <div className="dashboard-grid-split">
-        <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 10px' }}>
+        <div style={{ background: 'var(--clr-panel-soft)', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 10px' }}>
           <ResponsiveContainer width="100%" height={380}>
             <BarChart data={data} layout="vertical" margin={{ top: 0, right: 20, bottom: 0, left: 8 }}>
               <CartesianGrid horizontal={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />
@@ -132,7 +132,7 @@ export default function RiskChart({ data, summary }: { data: RiskPriorityRow[]; 
             value={`${summary.highRiskPct.toFixed(1)}%`}
             sub={`${summary.highRiskCount.toLocaleString()} ราย อยู่ในกลุ่มที่ควรเฝ้าระวังเข้มข้น`}
           />
-          <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.78)', border: '1px solid var(--clr-border)' }}>
+          <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.92)', border: '1px solid var(--clr-border)' }}>
             <div className="section-label" style={{ marginBottom: 10 }}>
               รูปแบบที่พบมาก
             </div>

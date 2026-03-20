@@ -36,7 +36,25 @@ export default function FilterBar({ filters, onChange }: Props) {
   const activeCount = [filters.region, filters.period, filters.gender].filter(Boolean).length
 
   return (
-    <div className="dash-card fade-up" style={{ padding: 20 }}>
+    <div className="dash-card fade-up" style={{ padding: 22 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div className="section-label" style={{ marginBottom: 8 }}>
+            Control Center
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1.02, marginBottom: 6 }}>
+            ปรับขอบเขตข้อมูลที่ต้องการอ่าน
+          </div>
+          <div style={{ color: 'var(--clr-muted)', fontSize: 14 }}>
+            ภูมิภาคใช้ได้ทุกคำถาม · ช่วงเวลาเน้นข้อ 2 · เพศใช้เปรียบเทียบข้อ 1 และข้อ 3
+          </div>
+        </div>
+
+        <span className="soft-pill" style={{ background: 'rgba(123, 97, 255, 0.08)', color: '#7b61ff' }}>
+          ใช้งานตัวกรอง {activeCount} รายการ
+        </span>
+      </div>
+
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 18 }}>
         <Select label="ภูมิภาค" value={filters.region} options={REGIONS} onChange={update('region')} />
         <Select label="ช่วงเวลา" value={filters.period} options={PERIODS} onChange={update('period')} />
@@ -46,32 +64,34 @@ export default function FilterBar({ filters, onChange }: Props) {
           <button
             onClick={() => onChange({ region: '', period: '', gender: '' })}
             style={{
-              height: 49,
-              padding: '0 16px',
-              borderRadius: 14,
-              border: '1px solid var(--clr-border)',
-              background: 'rgba(255,255,255,0.72)',
-              color: 'var(--clr-muted)',
+              height: 51,
+              padding: '0 18px',
+              borderRadius: 16,
+              border: '1px solid rgba(236, 230, 249, 0.92)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f5efff 100%)',
+              color: 'var(--clr-text)',
               cursor: 'pointer',
               fontFamily: 'var(--font-body)',
               fontSize: 14,
+              fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 8,
+              gap: 10,
+              boxShadow: '0 14px 26px rgba(118, 81, 161, 0.08)',
             }}
           >
             <span
               style={{
-                width: 22,
-                height: 22,
+                width: 24,
+                height: 24,
                 borderRadius: '50%',
-                background: 'var(--clr-amber)',
-                color: '#fff',
-                fontSize: 12,
-                fontWeight: 700,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                background: 'linear-gradient(135deg, #f34d8f 0%, #8c55f2 100%)',
+                color: '#fff',
+                fontSize: 12,
+                fontWeight: 700,
               }}
             >
               {activeCount}
@@ -79,18 +99,6 @@ export default function FilterBar({ filters, onChange }: Props) {
             ล้างตัวกรอง
           </button>
         )}
-      </div>
-
-      <div
-        style={{
-          marginTop: 14,
-          paddingTop: 14,
-          borderTop: '1px dashed var(--clr-border)',
-          fontSize: 14,
-          color: 'var(--clr-muted)',
-        }}
-      >
-        ภูมิภาคใช้ได้ทุกข้อ · ช่วงเวลาใช้กับคำถามข้อ 2 · เพศใช้กับคำถามข้อ 1 และข้อ 3
       </div>
     </div>
   )

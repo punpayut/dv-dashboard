@@ -88,7 +88,7 @@ export default function ButterflyChart({ data }: { data: ButterflyRow[] }) {
         </span>
       </div>
 
-      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '12px 6px 6px' }}>
+      <div style={{ background: 'var(--clr-panel-soft)', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '12px 6px 6px' }}>
         <ResponsiveContainer width="100%" height={360}>
           <BarChart data={data} layout="vertical" barGap={2} barCategoryGap="16%" margin={{ top: 0, right: 18, bottom: 0, left: 0 }}>
             <CartesianGrid horizontal={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />

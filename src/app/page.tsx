@@ -94,15 +94,15 @@ export default function Dashboard() {
           gap: 24,
         }}
       >
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 10 }}>
           {[0, 1, 2].map((index) => (
             <div
               key={index}
               style={{
-                width: 10,
-                height: 10,
+                width: 12,
+                height: 12,
                 borderRadius: '50%',
-                background: ['var(--clr-offender)', 'var(--clr-victim)', 'var(--clr-accent)'][index],
+                background: ['#f34d8f', '#7b61ff', '#48b8ff'][index],
                 animation: 'fadeUp 0.6s ease infinite alternate',
                 animationDelay: `${index * 0.15}s`,
               }}
@@ -110,12 +110,12 @@ export default function Dashboard() {
           ))}
         </div>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--clr-text)' }}>กำลังโหลดข้อมูล</p>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: 'var(--clr-text)' }}>กำลังโหลดข้อมูล dashboard</p>
           <p style={{ fontSize: 15, color: 'var(--clr-muted)', marginTop: 6 }}>incident · offender · victim</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {[160, 120, 140].map((width, index) => (
-            <div key={index} className="skeleton" style={{ width, height: 16 }} />
+          {[170, 120, 150].map((width, index) => (
+            <div key={index} className="skeleton" style={{ width, height: 18 }} />
           ))}
         </div>
       </div>
@@ -128,295 +128,371 @@ export default function Dashboard() {
     filters.gender && `เพศ: ${filters.gender}`,
   ].filter(Boolean)
 
+  const scopeText = activeFilters.length > 0 ? activeFilters.join(' · ') : 'ประเทศไทยทั้งหมด · ทุกช่วงเวลา · ทุกเพศ'
+  const topRisk = riskPriority[0]
+
+  const sidebarItems = [
+    {
+      title: 'Overview',
+      copy: `${overview.total.toLocaleString()} เหตุในขอบเขตนี้`,
+      active: true,
+    },
+    {
+      title: 'Who Is At Risk',
+      copy: who.victimPeak ? `${who.victimPeak.gender} · ${who.victimPeak.ageShort}` : 'ไม่มีข้อมูล',
+    },
+    {
+      title: 'Where & When',
+      copy: hotspot.topProvince.label ? `${hotspot.topProvince.label} · ${hotspot.topPeriod.shortLabel}` : 'ไม่มีข้อมูล',
+    },
+    {
+      title: 'Warning Signs',
+      copy: topRisk ? `${topRisk.factor} ${formatPercent(topRisk.pct)}` : 'ไม่มีข้อมูล',
+    },
+  ]
+
+  const heroStats = [
+    {
+      label: 'เหตุที่รายงาน',
+      value: overview.total.toLocaleString(),
+      copy: 'เคสทั้งหมดภายใต้ตัวกรองปัจจุบัน',
+      gradient: 'linear-gradient(135deg, #f34d8f 0%, #8c55f2 100%)',
+    },
+    {
+      label: 'Hotspot สูงสุด',
+      value: hotspot.topProvincePeriod.count.toLocaleString(),
+      copy: hotspot.topProvincePeriod.province
+        ? `${hotspot.topProvincePeriod.province} · ${hotspot.topProvincePeriod.shortPeriod}`
+        : 'ยังไม่พบ hotspot',
+      gradient: 'linear-gradient(135deg, #7b61ff 0%, #46b8ff 100%)',
+    },
+    {
+      label: 'กลุ่มเสี่ยงฝั่งผู้กระทำ',
+      value: formatPercent(who.offenderPeak?.pct),
+      copy: who.offenderPeak ? `${who.offenderPeak.gender} · ${who.offenderPeak.ageShort}` : 'ไม่มีข้อมูล',
+      gradient: 'linear-gradient(135deg, #6a5cff 0%, #9b59ff 100%)',
+    },
+    {
+      label: 'Trigger อันดับ 1',
+      value: formatPercent(topRisk?.pct),
+      copy: topRisk ? topRisk.factor : 'ไม่มีข้อมูล',
+      gradient: 'linear-gradient(135deg, #ffb11f 0%, #ff7a45 100%)',
+    },
+  ]
+
+  const q1Insights = [
+    who.offenderPeak
+      ? `ฝั่งผู้กระทำกระจุกสูงสุดที่ ${who.offenderPeak.gender} วัย ${who.offenderPeak.ageShort} คิดเป็น ${formatPercent(who.offenderPeak.pct)} ของผู้กระทำทั้งหมด`
+      : 'ไม่พบกลุ่มเด่นฝั่งผู้กระทำ',
+    who.victimPeak
+      ? `ฝั่งผู้ถูกกระทำเด่นสุดที่ ${who.victimPeak.gender} วัย ${who.victimPeak.ageShort} คิดเป็น ${formatPercent(who.victimPeak.pct)} ของผู้ถูกกระทำทั้งหมด`
+      : 'ไม่พบกลุ่มเด่นฝั่งผู้ถูกกระทำ',
+    'กราฟเดียวช่วยให้เห็นทันทีว่าโครงสร้างของผู้กระทำและผู้ถูกกระทำไม่ได้กระจายตัวแบบเดียวกัน',
+  ]
+
+  const q2Insights = [
+    hotspot.topProvince.label
+      ? `${hotspot.topProvince.label} เป็นจังหวัดที่พบเหตุสูงสุด ${formatPercent(hotspot.topProvince.pct)} ของเหตุทั้งหมดในขอบเขตนี้`
+      : 'ไม่พบจังหวัดเด่น',
+    hotspot.topPeriod.shortLabel
+      ? `ช่วง ${hotspot.topPeriod.shortLabel} มีเหตุสูงสุด ${hotspot.topPeriod.count.toLocaleString()} เหตุ`
+      : 'ไม่พบช่วงเวลาเด่น',
+    hotspot.topLocale.label
+      ? `${hotspot.topLocale.label} เป็นบริบทหลักของเหตุการณ์ ${formatPercent(hotspot.topLocale.pct)}`
+      : 'ไม่พบบริบทสถานที่เด่น',
+  ]
+
   return (
-    <div style={{ minHeight: '100vh' }}>
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          backdropFilter: 'blur(14px)',
-          background: 'rgba(245, 243, 239, 0.72)',
-          borderBottom: '1px solid rgba(228, 224, 216, 0.92)',
-        }}
-      >
-        <div
-          style={{
-            height: 3,
-            background:
-              'linear-gradient(to right, var(--clr-offender) 0%, var(--clr-victim) 50%, var(--clr-accent) 100%)',
-          }}
-        />
-        <div
-          className="dashboard-shell"
-          style={{
-            paddingTop: 12,
-            paddingBottom: 12,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 14,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div>
-            <p className="section-label" style={{ marginBottom: 4 }}>
-              THackle Dataviz Challenge
-            </p>
-            <h1
+    <main className="dashboard-shell">
+      <div className="admin-shell">
+        <aside className="admin-sidebar">
+          <div className="sidebar-brand">
+            <div className="sidebar-brand-badge">DV</div>
+            <div>
+              <div className="sidebar-brand-title">Insight Hub</div>
+              <div className="sidebar-brand-copy">Family violence analytics board</div>
+            </div>
+          </div>
+
+          <div className="sidebar-nav-label">Workspace</div>
+          <div className="sidebar-nav">
+            {sidebarItems.map((item, index) => (
+              <div key={item.title} className={`sidebar-nav-item${item.active ? ' is-active' : ''}`}>
+                <div className="sidebar-nav-text">
+                  <div className="sidebar-nav-title">{item.title}</div>
+                  <div className="sidebar-nav-copy">{item.copy}</div>
+                </div>
+                <div className="sidebar-nav-index">{index + 1}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="sidebar-note">
+            <div className="section-label section-label-light" style={{ marginBottom: 8 }}>
+              Current Scope
+            </div>
+            <div className="sidebar-note-title">Data snapshot</div>
+            <div className="sidebar-note-copy">{scopeText}</div>
+
+            <div className="sidebar-note-grid">
+              <div className="sidebar-note-box">
+                <div style={{ fontSize: 12, opacity: 0.74 }}>ผู้กระทำ</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>{filteredOffender.length.toLocaleString()}</div>
+              </div>
+              <div className="sidebar-note-box">
+                <div style={{ fontSize: 12, opacity: 0.74 }}>ผู้ถูกกระทำ</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>{filteredVictim.length.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section className="admin-main">
+          <div className="admin-topbar">
+            <div>
+              <div className="topbar-eyebrow">Analytics Workspace</div>
+              <div className="topbar-title">Family Violence Dashboard</div>
+              <div className="topbar-copy">Layout ใหม่ในสไตล์ admin dashboard พร้อมโทนสีสดและลำดับการอ่านที่ชัดขึ้น</div>
+            </div>
+
+            <div className="topbar-actions">
+              <span className="topbar-chip">Public VCIS Dataset</span>
+              <span className="topbar-chip">3 Key Questions</span>
+              <div className="topbar-icon" />
+              <div className="topbar-icon" />
+              <div className="topbar-icon" />
+            </div>
+          </div>
+
+          <div className="admin-content">
+            <section className="hero-banner fade-up">
+              <div>
+                <div className="section-label" style={{ marginBottom: 8 }}>
+                  Dashboard Overview
+                </div>
+                <h1 className="hero-title">มองเห็นความเสี่ยง จุดวิกฤต และสัญญาณเตือนในหน้าเดียว</h1>
+                <p className="hero-copy">
+                  โครงหน้าใหม่ย้ายให้เหมือน product dashboard มากขึ้น ใช้ sidebar และ KPI แบบ gradient เพื่อให้เห็นคำตอบของ Q1, Q2,
+                  Q3 แบบกวาดสายตาแล้วจับประเด็นได้เร็ว
+                </p>
+
+                <div className="hero-pill-row">
+                  <span className="soft-pill">Who is at risk</span>
+                  <span className="soft-pill">Where &amp; When</span>
+                  <span className="soft-pill">What triggers violence</span>
+                  {activeFilters.length > 0 && <span className="soft-pill">{scopeText}</span>}
+                </div>
+              </div>
+
+              <div className="hero-stats-grid">
+                {heroStats.map((item) => (
+                  <div key={item.label} className="hero-mini-card" style={{ background: item.gradient }}>
+                    <div className="hero-mini-label">{item.label}</div>
+                    <div className="hero-mini-value">{item.value}</div>
+                    <div className="hero-mini-copy">{item.copy}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <FilterBar filters={filters} onChange={setFilters} />
+
+            <div className="dashboard-grid-kpi">
+              <KpiCard label="เหตุที่รายงาน" value={overview.total.toLocaleString()} accent="accent" sub="เหตุทั้งหมดภายใต้ขอบเขตที่เลือก" />
+              <KpiCard
+                label="เกิดในสถานที่ส่วนบุคคล"
+                value={formatPercent(overview.privatePct)}
+                accent="amber"
+                sub={`${filteredIncident.filter((row) => row.Locale === 'สถานที่ส่วนบุคคล').length.toLocaleString()} เหตุ`}
+              />
+              <KpiCard
+                label="ผู้กระทำเป็นชาย"
+                value={formatPercent(overview.offMalePct)}
+                accent="offender"
+                sub={`${filteredOffender.filter((row) => row.Gender === 'ชาย').length.toLocaleString()} ราย`}
+              />
+              <KpiCard
+                label="ผู้ถูกกระทำเป็นหญิง"
+                value={formatPercent(overview.vicFemalePct)}
+                accent="victim"
+                sub={`${filteredVictim.filter((row) => row.Gender === 'หญิง').length.toLocaleString()} ราย`}
+              />
+            </div>
+
+            <section>
+              <div className="section-head fade-up">
+                <div>
+                  <p className="section-label" style={{ marginBottom: 4 }}>
+                    Q1
+                  </p>
+                  <h2 className="section-title">ใครเสี่ยงที่สุด?</h2>
+                </div>
+                <p className="section-copy">
+                  ใช้โครงสร้างอายุและเพศของผู้กระทำกับผู้ถูกกระทำในภาพเดียว เพื่อให้ pattern ของแต่ละบทบาทแยกจากกันชัดและเทียบได้ตรง ๆ
+                </p>
+              </div>
+
+              <div className="dashboard-grid-split">
+                <ButterflyChart data={butterfly} />
+
+                <div className="insight-stack">
+                  <div className="dash-card insight-card">
+                    <div className="section-label">Key Read</div>
+                    <div className="insight-card-title">โครงสร้างความเสี่ยงของสองบทบาทไม่เหมือนกัน</div>
+                    <div style={{ color: 'var(--clr-muted)', fontSize: 14 }}>
+                      ฝั่งผู้กระทำมีความเข้มข้นในผู้ชายวัยทำงานสูงกว่า ขณะที่ฝั่งผู้ถูกกระทำกระจายไปยังผู้หญิงหลายช่วงวัยมากกว่า
+                    </div>
+                    <div className="insight-list">
+                      {q1Insights.map((item) => (
+                        <div key={item} className="insight-list-row">
+                          <span className="insight-bullet" />
+                          <div style={{ fontSize: 14, color: 'var(--clr-text)' }}>{item}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="dash-card insight-card">
+                    <div className="section-label">Role Summary</div>
+                    <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
+                      <div className="panel-soft" style={{ padding: 14 }}>
+                        <div style={{ fontSize: 13, color: 'var(--clr-muted)', marginBottom: 6 }}>ผู้กระทำที่พบบ่อยสุด</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 0.95, marginBottom: 8 }}>
+                          {formatPercent(who.offenderPeak?.pct)}
+                        </div>
+                        <div style={{ fontSize: 14, color: 'var(--clr-text)' }}>
+                          {who.offenderPeak ? `${who.offenderPeak.gender} · วัย ${who.offenderPeak.ageShort}` : 'ไม่มีข้อมูล'}
+                        </div>
+                      </div>
+                      <div className="panel-soft" style={{ padding: 14 }}>
+                        <div style={{ fontSize: 13, color: 'var(--clr-muted)', marginBottom: 6 }}>ผู้ถูกกระทำที่พบบ่อยสุด</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 0.95, marginBottom: 8 }}>
+                          {formatPercent(who.victimPeak?.pct)}
+                        </div>
+                        <div style={{ fontSize: 14, color: 'var(--clr-text)' }}>
+                          {who.victimPeak ? `${who.victimPeak.gender} · วัย ${who.victimPeak.ageShort}` : 'ไม่มีข้อมูล'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="section-head fade-up fade-up-3">
+                <div>
+                  <p className="section-label" style={{ marginBottom: 4 }}>
+                    Q2
+                  </p>
+                  <h2 className="section-title">เกิดที่ไหน เมื่อไหร่?</h2>
+                </div>
+                <p className="section-copy">
+                  พื้นที่และช่วงเวลาที่เกิดเหตุซ้ำสูงคือสิ่งที่ต้องเห็นเร็วที่สุด จึงจัด heatmap ให้เป็นพระเอกและเสริมด้วย mini charts ทางขวา
+                </p>
+              </div>
+
+              <div className="dashboard-grid-split">
+                <HeatmapChart data={heatmap} />
+
+                <div className="insight-stack">
+                  <div className="dash-card insight-card">
+                    <div className="section-label">Hotspot Signals</div>
+                    <div className="insight-card-title">พื้นที่และเวลาที่ควรจับตาเป็นพิเศษ</div>
+                    <div className="insight-list">
+                      {q2Insights.map((item) => (
+                        <div key={item} className="insight-list-row">
+                          <span className="insight-bullet" />
+                          <div style={{ fontSize: 14, color: 'var(--clr-text)' }}>{item}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <PeriodChart data={period} />
+                  <RegionChart data={region} />
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="section-head fade-up fade-up-4">
+                <div>
+                  <p className="section-label" style={{ marginBottom: 4 }}>
+                    Q3
+                  </p>
+                  <h2 className="section-title">อะไรคือสัญญาณเตือน?</h2>
+                </div>
+                <p className="section-copy">
+                  หน้า block นี้จัดให้เหมือน analytics module ของ dashboard product โดยเน้น risk priority ที่หยิบไปใช้กำหนดมาตรการป้องกันได้ทันที
+                </p>
+              </div>
+
+              <div className="dashboard-grid-kpi" style={{ marginBottom: 18 }}>
+                <KpiCard
+                  label="อันดับ 1"
+                  value={formatPercent(riskPriority[0]?.pct)}
+                  accent="amber"
+                  sub={riskPriority[0] ? `${riskPriority[0].factor} · ${riskPriority[0].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
+                />
+                <KpiCard
+                  label="อันดับ 2"
+                  value={formatPercent(riskPriority[1]?.pct)}
+                  accent="accent"
+                  sub={riskPriority[1] ? `${riskPriority[1].factor} · ${riskPriority[1].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
+                />
+                <KpiCard
+                  label="อันดับ 3"
+                  value={formatPercent(riskPriority[2]?.pct)}
+                  accent="victim"
+                  sub={riskPriority[2] ? `${riskPriority[2].factor} · ${riskPriority[2].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
+                />
+                <KpiCard
+                  label="มี 2 ปัจจัยขึ้นไป"
+                  value={formatPercent(riskProfiles.multiFactorPct)}
+                  accent="offender"
+                  sub={`${riskProfiles.multiFactorCount.toLocaleString()} ราย`}
+                />
+              </div>
+
+              <RiskChart data={riskPriority} summary={riskProfiles} />
+            </section>
+
+            <footer
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(1.5rem, 1.2rem + 1vw, 2.25rem)',
-                color: 'var(--clr-text)',
-                lineHeight: 1.1,
-                marginBottom: 4,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                borderTop: '1px solid rgba(236, 230, 249, 0.9)',
+                paddingTop: 18,
+                color: 'var(--clr-muted)',
+                fontSize: 14,
               }}
             >
-              Family Violence Dashboard
-            </h1>
-            <p style={{ color: 'var(--clr-muted)', fontSize: 14 }}>
-              ตอบ 3 คำถามหลักจากข้อมูลเหตุการณ์ ผู้กระทำ และผู้ถูกกระทำในครอบครัว
-            </p>
-          </div>
-
-          {activeFilters.length > 0 && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-              {activeFilters.map((filter) => (
-                <span
-                  key={filter}
-                  className="soft-pill"
-                  style={{
-                    background: 'var(--clr-amber-light)',
-                    color: 'var(--clr-amber)',
-                    borderColor: '#e9cfa0',
-                  }}
-                >
-                  {filter}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ display: 'flex', gap: 5 }}>
+                  {['#f34d8f', '#7b61ff', '#48b8ff'].map((color, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: '50%',
+                        background: color,
+                        display: 'inline-block',
+                      }}
+                    />
+                  ))}
                 </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </header>
-
-      <main className="dashboard-shell">
-        <div style={{ marginBottom: 20 }}>
-          <FilterBar filters={filters} onChange={setFilters} />
-        </div>
-
-        <div className="dashboard-grid-kpi" style={{ marginBottom: 30 }}>
-          <KpiCard label="เหตุที่รายงาน" value={overview.total.toLocaleString()} accent="accent" sub="ชุดข้อมูลเหตุการณ์ที่อยู่ในตัวกรองนี้" />
-          <KpiCard
-            label="เกิดในสถานที่ส่วนบุคคล"
-            value={formatPercent(overview.privatePct)}
-            accent="amber"
-            sub={`${filteredIncident.filter((row) => row.Locale === 'สถานที่ส่วนบุคคล').length.toLocaleString()} เหตุ`}
-          />
-          <KpiCard
-            label="ผู้กระทำเป็นชาย"
-            value={formatPercent(overview.offMalePct)}
-            accent="offender"
-            sub={`${filteredOffender.filter((row) => row.Gender === 'ชาย').length.toLocaleString()} ราย`}
-          />
-          <KpiCard
-            label="ผู้ถูกกระทำเป็นหญิง"
-            value={formatPercent(overview.vicFemalePct)}
-            accent="victim"
-            sub={`${filteredVictim.filter((row) => row.Gender === 'หญิง').length.toLocaleString()} ราย`}
-          />
-          <KpiCard
-            label="เด็กอายุต่ำกว่า 12 ปี"
-            value={overview.childVictimCount.toLocaleString()}
-            accent="amber"
-            sub="ในฝั่งผู้ถูกกระทำ"
-          />
-        </div>
-
-        <section style={{ marginBottom: 30 }}>
-          <div className="section-head fade-up">
-            <div>
-              <p className="section-label" style={{ marginBottom: 4 }}>
-                Q1
-              </p>
-              <h2 className="section-title">ใครเสี่ยงที่สุด?</h2>
-            </div>
-            <p className="section-copy">
-              ดูโครงสร้างอายุและเพศของผู้กระทำกับผู้ถูกกระทำในภาพเดียว เพื่อเห็นทันทีว่ากลุ่มเสี่ยงสูงสุดของแต่ละบทบาทต่างกันอย่างไร
-            </p>
-          </div>
-
-          <div className="dashboard-grid-kpi" style={{ marginBottom: 18 }}>
-            <KpiCard
-              label="ผู้กระทำที่พบบ่อยสุด"
-              value={formatPercent(who.offenderPeak?.pct)}
-              accent="offender"
-              sub={
-                who.offenderPeak
-                  ? `${who.offenderPeak.gender} · ${who.offenderPeak.ageShort} · ${who.offenderPeak.count.toLocaleString()} ราย`
-                  : 'ไม่มีข้อมูล'
-              }
-            />
-            <KpiCard
-              label="เพศเด่นฝั่งผู้กระทำ"
-              value={formatPercent(who.offenderLeader?.pct)}
-              accent="offender"
-              sub={
-                who.offenderLeader
-                  ? `${who.offenderLeader.gender} · ${who.offenderLeader.count.toLocaleString()} ราย`
-                  : 'ไม่มีข้อมูล'
-              }
-            />
-            <KpiCard
-              label="ผู้ถูกกระทำที่พบบ่อยสุด"
-              value={formatPercent(who.victimPeak?.pct)}
-              accent="victim"
-              sub={
-                who.victimPeak
-                  ? `${who.victimPeak.gender} · ${who.victimPeak.ageShort} · ${who.victimPeak.count.toLocaleString()} ราย`
-                  : 'ไม่มีข้อมูล'
-              }
-            />
-            <KpiCard
-              label="เพศเด่นฝั่งผู้ถูกกระทำ"
-              value={formatPercent(who.victimLeader?.pct)}
-              accent="victim"
-              sub={
-                who.victimLeader
-                  ? `${who.victimLeader.gender} · ${who.victimLeader.count.toLocaleString()} ราย`
-                  : 'ไม่มีข้อมูล'
-              }
-            />
-          </div>
-
-          <ButterflyChart data={butterfly} />
-        </section>
-
-        <section style={{ marginBottom: 30 }}>
-          <div className="section-head fade-up fade-up-3">
-            <div>
-              <p className="section-label" style={{ marginBottom: 4 }}>
-                Q2
-              </p>
-              <h2 className="section-title">เกิดที่ไหน เมื่อไหร่?</h2>
-            </div>
-            <p className="section-copy">
-              มองหา hotspot ของเหตุการณ์จากทั้งพื้นที่และช่วงเวลา เพื่อเห็นจุดที่อาจต้องจัดทรัพยากรเฝ้าระวังหรือป้องกันเพิ่ม
-            </p>
-          </div>
-
-          <div className="dashboard-grid-kpi" style={{ marginBottom: 18 }}>
-            <KpiCard
-              label="จังหวัดที่พบมากสุด"
-              value={formatPercent(hotspot.topProvince.pct)}
-              accent="accent"
-              sub={`${hotspot.topProvince.label || 'ไม่มีข้อมูล'} · ${hotspot.topProvince.count.toLocaleString()} เหตุ`}
-            />
-            <KpiCard
-              label="ช่วงเวลาที่พบบ่อยสุด"
-              value={formatPercent(hotspot.topPeriod.pct)}
-              accent="amber"
-              sub={`${hotspot.topPeriod.shortLabel || 'ไม่มีข้อมูล'} · ${hotspot.topPeriod.count.toLocaleString()} เหตุ`}
-            />
-            <KpiCard
-              label="เกิดในสถานที่ส่วนบุคคล"
-              value={formatPercent(overview.privatePct)}
-              accent="amber"
-              sub={`${filteredIncident.filter((row) => row.Locale === 'สถานที่ส่วนบุคคล').length.toLocaleString()} เหตุ`}
-            />
-            <KpiCard
-              label="Hotspot สูงสุด"
-              value={hotspot.topProvincePeriod.count.toLocaleString()}
-              accent="offender"
-              sub={`${hotspot.topProvincePeriod.province || 'ไม่มีข้อมูล'} · ${hotspot.topProvincePeriod.shortPeriod || '-'}`}
-            />
-          </div>
-
-          <div style={{ marginBottom: 18 }}>
-            <HeatmapChart data={heatmap} />
-          </div>
-
-          <div className="dashboard-grid-two-compact">
-            <PeriodChart data={period} />
-            <RegionChart data={region} />
+                Visual layout inspired by modern admin dashboards
+              </div>
+              <div>วิเคราะห์จากไฟล์ `public/data/*.csv` · Next.js + Recharts</div>
+            </footer>
           </div>
         </section>
-
-        <section style={{ marginBottom: 32 }}>
-          <div className="section-head fade-up fade-up-4">
-            <div>
-              <p className="section-label" style={{ marginBottom: 4 }}>
-                Q3
-              </p>
-              <h2 className="section-title">อะไรคือสัญญาณเตือน?</h2>
-            </div>
-            <p className="section-copy">
-              จัดลำดับปัจจัยเสี่ยงของผู้กระทำ โดยดูทั้งความถี่และการเกิดร่วมกับปัจจัยอื่น เพื่อบอกว่าควรเริ่มป้องกันจากจุดใดก่อน
-            </p>
-          </div>
-
-          <div className="dashboard-grid-kpi" style={{ marginBottom: 18 }}>
-            <KpiCard
-              label="อันดับ 1"
-              value={formatPercent(riskPriority[0]?.pct)}
-              accent="amber"
-              sub={riskPriority[0] ? `${riskPriority[0].factor} · ${riskPriority[0].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
-            />
-            <KpiCard
-              label="อันดับ 2"
-              value={formatPercent(riskPriority[1]?.pct)}
-              accent="amber"
-              sub={riskPriority[1] ? `${riskPriority[1].factor} · ${riskPriority[1].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
-            />
-            <KpiCard
-              label="อันดับ 3"
-              value={formatPercent(riskPriority[2]?.pct)}
-              accent="amber"
-              sub={riskPriority[2] ? `${riskPriority[2].factor} · ${riskPriority[2].count.toLocaleString()} ราย` : 'ไม่มีข้อมูล'}
-            />
-            <KpiCard
-              label="มี 2 ปัจจัยขึ้นไป"
-              value={formatPercent(riskProfiles.multiFactorPct)}
-              accent="offender"
-              sub={`${riskProfiles.multiFactorCount.toLocaleString()} ราย`}
-            />
-          </div>
-
-          <RiskChart data={riskPriority} summary={riskProfiles} />
-        </section>
-
-        <footer
-          style={{
-            borderTop: '1px solid rgba(228, 224, 216, 0.92)',
-            paddingTop: 18,
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            color: 'var(--clr-muted)',
-            fontSize: '0.95rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ display: 'flex', gap: 5 }}>
-              {['var(--clr-offender)', 'var(--clr-victim)', 'var(--clr-accent)'].map((color, index) => (
-                <span
-                  key={index}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: color,
-                    display: 'inline-block',
-                  }}
-                />
-              ))}
-            </span>
-            วิเคราะห์จากไฟล์ใน `public/data/*.csv`
-          </div>
-          <div>Next.js + Recharts · THackle DataViz Challenge</div>
-        </footer>
-      </main>
-    </div>
+      </div>
+    </main>
   )
 }

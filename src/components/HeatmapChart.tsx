@@ -43,7 +43,7 @@ export default function HeatmapChart({ data }: { data: HeatmapRow[] }) {
         </span>
       </div>
 
-      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 14px 10px', overflowX: 'auto' }}>
+      <div style={{ background: 'var(--clr-panel-soft)', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 14px 10px', overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 4 }}>
           <thead>
             <tr>
