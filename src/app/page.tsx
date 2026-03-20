@@ -131,26 +131,6 @@ export default function Dashboard() {
   const scopeText = activeFilters.length > 0 ? activeFilters.join(' · ') : 'ประเทศไทยทั้งหมด · ทุกช่วงเวลา · ทุกเพศ'
   const topRisk = riskPriority[0]
 
-  const sidebarItems = [
-    {
-      title: 'Overview',
-      copy: `${overview.total.toLocaleString()} เหตุในขอบเขตนี้`,
-      active: true,
-    },
-    {
-      title: 'Who Is At Risk',
-      copy: who.victimPeak ? `${who.victimPeak.gender} · ${who.victimPeak.ageShort}` : 'ไม่มีข้อมูล',
-    },
-    {
-      title: 'Where & When',
-      copy: hotspot.topProvince.label ? `${hotspot.topProvince.label} · ${hotspot.topPeriod.shortLabel}` : 'ไม่มีข้อมูล',
-    },
-    {
-      title: 'Warning Signs',
-      copy: topRisk ? `${topRisk.factor} ${formatPercent(topRisk.pct)}` : 'ไม่มีข้อมูล',
-    },
-  ]
-
   const heroStats = [
     {
       label: 'เหตุที่รายงาน',
@@ -205,48 +185,6 @@ export default function Dashboard() {
   return (
     <main className="dashboard-shell">
       <div className="admin-shell">
-        <aside className="admin-sidebar">
-          <div className="sidebar-brand">
-            <div className="sidebar-brand-badge">DV</div>
-            <div>
-              <div className="sidebar-brand-title">Insight Hub</div>
-              <div className="sidebar-brand-copy">Family violence analytics board</div>
-            </div>
-          </div>
-
-          <div className="sidebar-nav-label">Workspace</div>
-          <div className="sidebar-nav">
-            {sidebarItems.map((item, index) => (
-              <div key={item.title} className={`sidebar-nav-item${item.active ? ' is-active' : ''}`}>
-                <div className="sidebar-nav-text">
-                  <div className="sidebar-nav-title">{item.title}</div>
-                  <div className="sidebar-nav-copy">{item.copy}</div>
-                </div>
-                <div className="sidebar-nav-index">{index + 1}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="sidebar-note">
-            <div className="section-label section-label-light" style={{ marginBottom: 8 }}>
-              Current Scope
-            </div>
-            <div className="sidebar-note-title">Data snapshot</div>
-            <div className="sidebar-note-copy">{scopeText}</div>
-
-            <div className="sidebar-note-grid">
-              <div className="sidebar-note-box">
-                <div style={{ fontSize: 12, opacity: 0.74 }}>ผู้กระทำ</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>{filteredOffender.length.toLocaleString()}</div>
-              </div>
-              <div className="sidebar-note-box">
-                <div style={{ fontSize: 12, opacity: 0.74 }}>ผู้ถูกกระทำ</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>{filteredVictim.length.toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
         <section className="admin-main">
           <div className="admin-topbar">
             <div>
@@ -266,16 +204,10 @@ export default function Dashboard() {
 
           <div className="admin-content">
             <section className="hero-banner fade-up">
-              <div>
+              <div className="hero-summary">
                 <div className="section-label" style={{ marginBottom: 8 }}>
                   Dashboard Overview
                 </div>
-                <h1 className="hero-title">มองเห็นความเสี่ยง จุดวิกฤต และสัญญาณเตือนในหน้าเดียว</h1>
-                <p className="hero-copy">
-                  โครงหน้าใหม่ย้ายให้เหมือน product dashboard มากขึ้น ใช้ sidebar และ KPI แบบ gradient เพื่อให้เห็นคำตอบของ Q1, Q2,
-                  Q3 แบบกวาดสายตาแล้วจับประเด็นได้เร็ว
-                </p>
-
                 <div className="hero-pill-row">
                   <span className="soft-pill">Who is at risk</span>
                   <span className="soft-pill">Where &amp; When</span>
@@ -387,9 +319,6 @@ export default function Dashboard() {
                   </p>
                   <h2 className="section-title">เกิดที่ไหน เมื่อไหร่?</h2>
                 </div>
-                <p className="section-copy">
-                  พื้นที่และช่วงเวลาที่เกิดเหตุซ้ำสูงคือสิ่งที่ต้องเห็นเร็วที่สุด จึงจัด heatmap ให้เป็นพระเอกและเสริมด้วย mini charts ทางขวา
-                </p>
               </div>
 
               <div className="dashboard-grid-split">
@@ -423,9 +352,6 @@ export default function Dashboard() {
                   </p>
                   <h2 className="section-title">อะไรคือสัญญาณเตือน?</h2>
                 </div>
-                <p className="section-copy">
-                  หน้า block นี้จัดให้เหมือน analytics module ของ dashboard product โดยเน้น risk priority ที่หยิบไปใช้กำหนดมาตรการป้องกันได้ทันที
-                </p>
               </div>
 
               <div className="dashboard-grid-kpi" style={{ marginBottom: 18 }}>
