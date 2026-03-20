@@ -194,23 +194,52 @@ export default function Dashboard() {
               <span className="soft-pill" style={{ marginBottom: 16 }}>
                 ข้อมูลเหตุความรุนแรงในครอบครัว
               </span>
-              <h2
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(2.4rem, 2rem + 1.8vw, 4rem)',
-                  lineHeight: 0.95,
-                  letterSpacing: '-0.03em',
-                  marginBottom: 14,
-                  maxWidth: 760,
-                }}
-              >
-                ภาพรวมที่อ่านง่ายขึ้น
-                <br />
-                พร้อมตัวหนังสือที่ใหญ่และชัดกว่าเดิม
-              </h2>
-              <p className="muted-copy" style={{ maxWidth: 760, fontSize: '1.08rem', marginBottom: 18 }}>
-                ตีกรอบข้อมูลสำคัญให้อยู่ในจุดที่มองเห็นทันที และทำให้ส่วนกราฟอ่านค่ากับเทียบแนวโน้มได้ง่ายขึ้น
-              </p>
+              <div style={{ display: 'grid', gap: 14, marginBottom: 18, maxWidth: 820 }}>
+                {[
+                  {
+                    label: 'Link Colab',
+                    href: 'https://colab.research.google.com/drive/1xLXUJbKmgyfBtgoBLnXx1YP2Ak8SNr9g',
+                  },
+                  {
+                    label: 'Link Dataset',
+                    href: 'https://www.thackle.or.th/th/dataset/84',
+                  },
+                  {
+                    label: 'Link Dashboard',
+                    href: 'https://dv-dashboard-sooty.vercel.app/',
+                  },
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: 'block',
+                      padding: '16px 18px',
+                      borderRadius: 18,
+                      border: '1px solid rgba(228, 224, 216, 0.92)',
+                      background: 'rgba(255,255,255,0.68)',
+                      textDecoration: 'none',
+                      color: 'var(--clr-text)',
+                      boxShadow: '0 12px 30px rgba(24, 22, 15, 0.06)',
+                    }}
+                  >
+                    <div className="section-label" style={{ marginBottom: 6 }}>
+                      {item.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 'clamp(1.08rem, 1rem + 0.45vw, 1.35rem)',
+                        lineHeight: 1.45,
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {item.href}
+                    </div>
+                  </a>
+                ))}
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 <span className="soft-pill">ฐานข้อมูล VCIS</span>
                 <span className="soft-pill">Next.js + Recharts</span>
