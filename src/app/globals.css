@@ -27,7 +27,6 @@
 
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.07);
-  --shadow-soft: 0 20px 60px rgba(24, 22, 15, 0.08);
 }
 
 * {
@@ -181,50 +180,6 @@ body::after {
   padding: 24px 0 48px;
 }
 
-.hero-panel {
-  position: relative;
-  overflow: hidden;
-  padding: 28px;
-  border-radius: 28px;
-  border: 1px solid rgba(228, 224, 216, 0.92);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
-    linear-gradient(135deg, rgba(42, 122, 204, 0.1), rgba(12, 97, 71, 0.08));
-  box-shadow: var(--shadow-soft);
-}
-
-.hero-panel::after {
-  content: '';
-  position: absolute;
-  right: -60px;
-  top: -70px;
-  width: 220px;
-  height: 220px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(217, 64, 64, 0.16), transparent 68%);
-}
-
-.hero-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.95fr);
-  gap: 18px;
-  align-items: stretch;
-}
-
-.hero-stat {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 22px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(24, 22, 15, 0.96), rgba(39, 34, 26, 0.92));
-  color: #f9f7f2;
-  box-shadow: 0 20px 45px rgba(24, 22, 15, 0.22);
-}
-
 .soft-pill {
   display: inline-flex;
   align-items: center;
@@ -237,17 +192,6 @@ body::after {
   border: 1px solid rgba(228, 224, 216, 0.92);
   background: rgba(255, 255, 255, 0.65);
   color: var(--clr-text);
-}
-
-.soft-pill-dark {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-.muted-copy {
-  font-size: 0.98rem;
-  color: var(--clr-muted);
 }
 
 .dashboard-grid-kpi {
@@ -338,7 +282,6 @@ body::after {
     width: min(100% - 20px, 1380px);
   }
 
-  .hero-grid,
   .dashboard-grid-two,
   .dashboard-grid-two-compact {
     grid-template-columns: 1fr;
@@ -351,15 +294,6 @@ body::after {
 }
 
 @media (max-width: 640px) {
-  .hero-panel {
-    padding: 22px;
-    border-radius: 24px;
-  }
-
-  .hero-stat {
-    padding: 18px;
-  }
-
   .filter-select {
     width: 100%;
     min-width: 0;
