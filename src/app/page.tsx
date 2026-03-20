@@ -193,8 +193,14 @@ export default function Dashboard() {
             </div>
 
             <div className="topbar-actions">
-              <span className="topbar-chip">Public VCIS Dataset</span>
-              <span className="topbar-chip">3 Key Questions</span>
+              <a
+                className="topbar-chip topbar-chip-link"
+                href="https://www.thackle.or.th/th/dataset/84"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Public VCIS Dataset
+              </a>
               <div className="topbar-icon" />
               <div className="topbar-icon" />
               <div className="topbar-icon" />
