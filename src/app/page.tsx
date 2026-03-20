@@ -190,7 +190,6 @@ export default function Dashboard() {
             <div>
               <div className="topbar-eyebrow">Analytics Workspace</div>
               <div className="topbar-title">Family Violence Dashboard</div>
-              <div className="topbar-copy">Layout ใหม่ในสไตล์ admin dashboard พร้อมโทนสีสดและลำดับการอ่านที่ชัดขึ้น</div>
             </div>
 
             <div className="topbar-actions">
@@ -208,12 +207,11 @@ export default function Dashboard() {
                 <div className="section-label" style={{ marginBottom: 8 }}>
                   Dashboard Overview
                 </div>
-                <div className="hero-pill-row">
-                  <span className="soft-pill">Who is at risk</span>
-                  <span className="soft-pill">Where &amp; When</span>
-                  <span className="soft-pill">What triggers violence</span>
-                  {activeFilters.length > 0 && <span className="soft-pill">{scopeText}</span>}
-                </div>
+                {activeFilters.length > 0 && (
+                  <div className="hero-pill-row">
+                    <span className="soft-pill">{scopeText}</span>
+                  </div>
+                )}
               </div>
 
               <div className="hero-stats-grid">

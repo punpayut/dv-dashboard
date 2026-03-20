@@ -69,9 +69,6 @@ export default function RiskChart({ data, summary }: { data: RiskPriorityRow[]; 
             เรียงตามสัดส่วนผู้กระทำที่มีปัจจัยนั้น โดยแยกว่าเป็นปัจจัยเดี่ยวหรือพ่วงกับปัจจัยอื่น
           </div>
         </div>
-        <span className="soft-pill" style={{ whiteSpace: 'nowrap', background: 'var(--clr-subtle)' }}>
-          มองเห็น priority ชัดขึ้น
-        </span>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 14, color: 'var(--clr-muted)', fontSize: 13 }}>
