@@ -1,8 +1,14 @@
 'use client'
+
 import { useEffect, useMemo, useState } from 'react'
 import {
-  loadCSV, computeKPIs, computeButterfly,
-  computeHeatmap, computeRisk, computePeriod, computeRegion,
+  loadCSV,
+  computeKPIs,
+  computeButterfly,
+  computeHeatmap,
+  computeRisk,
+  computePeriod,
+  computeRegion,
 } from '@/lib/data'
 import type { IncidentRow, OffenderRow, VictimRow } from '@/lib/constants'
 import KpiCard from '@/components/KpiCard'
@@ -17,9 +23,9 @@ type Filters = { region: string; period: string; gender: string }
 export default function Dashboard() {
   const [incident, setIncident] = useState<IncidentRow[]>([])
   const [offender, setOffender] = useState<OffenderRow[]>([])
-  const [victim,   setVictim]   = useState<VictimRow[]>([])
-  const [loading,  setLoading]  = useState(true)
-  const [filters,  setFilters]  = useState<Filters>({ region: '', period: '', gender: '' })
+  const [victim, setVictim] = useState<VictimRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState<Filters>({ region: '', period: '', gender: '' })
 
   useEffect(() => {
     Promise.all([
@@ -27,56 +33,81 @@ export default function Dashboard() {
       loadCSV<OffenderRow>('/data/offender_clean.csv'),
       loadCSV<VictimRow>('/data/victim_clean.csv'),
     ]).then(([inc, off, vic]) => {
-      setIncident(inc); setOffender(off); setVictim(vic); setLoading(false)
+      setIncident(inc)
+      setOffender(off)
+      setVictim(vic)
+      setLoading(false)
     })
   }, [])
 
   const filteredIncident = useMemo(() => {
-    let d = incident
-    if (filters.region) d = d.filter(r => r.Regional === filters.region)
-    if (filters.period) d = d.filter(r => r.Period   === filters.period)
-    return d
+    let data = incident
+    if (filters.region) data = data.filter((row) => row.Regional === filters.region)
+    if (filters.period) data = data.filter((row) => row.Period === filters.period)
+    return data
   }, [incident, filters])
 
-  const filteredOffender = useMemo(() =>
-    filters.gender ? offender.filter(r => r.Gender === filters.gender) : offender
-  , [offender, filters.gender])
+  const filteredOffender = useMemo(
+    () => (filters.gender ? offender.filter((row) => row.Gender === filters.gender) : offender),
+    [offender, filters.gender]
+  )
 
-  const filteredVictim = useMemo(() =>
-    filters.gender ? victim.filter(r => r.Gender === filters.gender) : victim
-  , [victim, filters.gender])
+  const filteredVictim = useMemo(
+    () => (filters.gender ? victim.filter((row) => row.Gender === filters.gender) : victim),
+    [victim, filters.gender]
+  )
 
-  const kpis      = useMemo(() => computeKPIs(filteredIncident, filteredOffender, filteredVictim), [filteredIncident, filteredOffender, filteredVictim])
-  const butterfly = useMemo(() => computeButterfly(filteredOffender, filteredVictim),              [filteredOffender, filteredVictim])
-  const heatmap   = useMemo(() => computeHeatmap(filteredIncident),                                [filteredIncident])
-  const risk      = useMemo(() => computeRisk(filteredOffender, filteredVictim),                   [filteredOffender, filteredVictim])
-  const period    = useMemo(() => computePeriod(filteredIncident),                                 [filteredIncident])
-  const region    = useMemo(() => computeRegion(filteredIncident),                                 [filteredIncident])
+  const kpis = useMemo(
+    () => computeKPIs(filteredIncident, filteredOffender, filteredVictim),
+    [filteredIncident, filteredOffender, filteredVictim]
+  )
+  const butterfly = useMemo(
+    () => computeButterfly(filteredOffender, filteredVictim),
+    [filteredOffender, filteredVictim]
+  )
+  const heatmap = useMemo(() => computeHeatmap(filteredIncident), [filteredIncident])
+  const risk = useMemo(() => computeRisk(filteredOffender, filteredVictim), [filteredOffender, filteredVictim])
+  const period = useMemo(() => computePeriod(filteredIncident), [filteredIncident])
+  const region = useMemo(() => computeRegion(filteredIncident), [filteredIncident])
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 24 }}>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {[0,1,2].map(i => (
-            <div key={i} style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: ['var(--clr-offender)','var(--clr-victim)','var(--clr-accent)'][i],
-              animation: 'fadeUp 0.6s ease infinite alternate',
-              animationDelay: `${i * 0.15}s`,
-            }} />
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 24,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                background: ['var(--clr-offender)', 'var(--clr-victim)', 'var(--clr-accent)'][i],
+                animation: 'fadeUp 0.6s ease infinite alternate',
+                animationDelay: `${i * 0.15}s`,
+              }}
+            />
           ))}
         </div>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--clr-text)' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--clr-text)' }}>
             กำลังโหลดข้อมูล
           </p>
-          <p style={{ fontSize: 13, color: 'var(--clr-muted)', marginTop: 4 }}>
+          <p style={{ fontSize: 15, color: 'var(--clr-muted)', marginTop: 6 }}>
             incident · offender · victim
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {[140, 100, 120].map((w, i) => (
-            <div key={i} className="skeleton" style={{ width: w, height: 14 }} />
+          {[160, 120, 140].map((w, i) => (
+            <div key={i} className="skeleton" style={{ width: w, height: 16 }} />
           ))}
         </div>
       </div>
@@ -90,32 +121,65 @@ export default function Dashboard() {
   ].filter(Boolean)
 
   return (
-    <div style={{ background: 'var(--clr-bg)', minHeight: '100vh' }}>
-
-      {/* ── Header ───────────────────────────────────────────── */}
-      <header style={{ background: 'white', borderBottom: '1px solid var(--clr-border)', position: 'sticky', top: 0, zIndex: 20 }}>
-        {/* accent bar */}
-        <div style={{ height: 3, background: 'linear-gradient(to right, var(--clr-offender) 0%, var(--clr-victim) 50%, var(--clr-accent) 100%)' }} />
-        <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ minHeight: '100vh' }}>
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
+          backdropFilter: 'blur(14px)',
+          background: 'rgba(245, 243, 239, 0.72)',
+          borderBottom: '1px solid rgba(228, 224, 216, 0.92)',
+        }}
+      >
+        <div
+          style={{
+            height: 3,
+            background:
+              'linear-gradient(to right, var(--clr-offender) 0%, var(--clr-victim) 50%, var(--clr-accent) 100%)',
+          }}
+        />
+        <div
+          className="dashboard-shell"
+          style={{
+            paddingTop: 12,
+            paddingBottom: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 14,
+            flexWrap: 'wrap',
+          }}
+        >
           <div>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--clr-text)', lineHeight: 1.2 }}>
+            <p className="section-label" style={{ marginBottom: 4 }}>
+              THackle Dataviz Challenge
+            </p>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.5rem, 1.2rem + 1vw, 2.25rem)',
+                color: 'var(--clr-text)',
+                lineHeight: 1.1,
+              }}
+            >
               Family Violence Dashboard
             </h1>
-            <p style={{ fontSize: 12, color: 'var(--clr-muted)', marginTop: 3 }}>
-              ข้อมูลเหตุความรุนแรงในครอบครัว — VCIS กระทรวงพัฒนาสังคมและความมั่นคงของมนุษย์
-            </p>
           </div>
 
-          {/* active filter pills */}
           {activeFilters.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-              {activeFilters.map(f => (
-                <span key={f} style={{
-                  fontSize: 11, padding: '3px 10px', borderRadius: 20,
-                  background: 'var(--clr-amber-light)', color: 'var(--clr-amber)',
-                  border: '1px solid #E9CFA0', fontWeight: 500,
-                }}>
-                  {f}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {activeFilters.map((filter) => (
+                <span
+                  key={filter}
+                  className="soft-pill"
+                  style={{
+                    background: 'var(--clr-amber-light)',
+                    color: 'var(--clr-amber)',
+                    borderColor: '#e9cfa0',
+                  }}
+                >
+                  {filter}
                 </span>
               ))}
             </div>
@@ -123,52 +187,177 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main style={{ padding: '24px', maxWidth: 1280, margin: '0 auto' }}>
+      <main className="dashboard-shell">
+        <section className="hero-panel fade-up" style={{ marginBottom: 20 }}>
+          <div className="hero-grid">
+            <div>
+              <span className="soft-pill" style={{ marginBottom: 16 }}>
+                ข้อมูลเหตุความรุนแรงในครอบครัว
+              </span>
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(2.4rem, 2rem + 1.8vw, 4rem)',
+                  lineHeight: 0.95,
+                  letterSpacing: '-0.03em',
+                  marginBottom: 14,
+                  maxWidth: 760,
+                }}
+              >
+                ภาพรวมที่อ่านง่ายขึ้น
+                <br />
+                พร้อมตัวหนังสือที่ใหญ่และชัดกว่าเดิม
+              </h2>
+              <p className="muted-copy" style={{ maxWidth: 760, fontSize: '1.08rem', marginBottom: 18 }}>
+                ตีกรอบข้อมูลสำคัญให้อยู่ในจุดที่มองเห็นทันที และทำให้ส่วนกราฟอ่านค่ากับเทียบแนวโน้มได้ง่ายขึ้น
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                <span className="soft-pill">ฐานข้อมูล VCIS</span>
+                <span className="soft-pill">Next.js + Recharts</span>
+                <span className="soft-pill">Responsive layout</span>
+              </div>
+            </div>
 
-        {/* Filter */}
+            <aside className="hero-stat">
+              <div>
+                <span className="soft-pill soft-pill-dark" style={{ marginBottom: 14 }}>
+                  สรุปเร็ว
+                </span>
+                <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>
+                  เหตุทั้งหมดในชุดข้อมูลปัจจุบัน
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(2.8rem, 2.2rem + 1vw, 4.2rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.04em',
+                  }}
+                >
+                  {kpis.total.toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 12 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.08)' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.65)' }}>เกิดในบ้าน</div>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 600 }}>{kpis.homePct}%</div>
+                  </div>
+                  <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.08)' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.65)' }}>เด็กอายุต่ำกว่า 12 ปี</div>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 600 }}>{kpis.childN}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.78)' }}>
+                  เลือก filter เพื่อดูภาพรวมรายภูมิภาค ช่วงเวลา และเพศ ได้จากแผงด้านล่าง
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
         <div style={{ marginBottom: 20 }}>
           <FilterBar filters={filters} onChange={setFilters} />
         </div>
 
-        {/* KPI row */}
-        <p className="section-label fade-up" style={{ marginBottom: 10 }}>ภาพรวม</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0,1fr))', gap: 12, marginBottom: 24 }}>
-          <KpiCard label="เหตุการณ์ทั้งหมด"   value={kpis.total.toLocaleString()} animDelay="0.05s" />
-          <KpiCard label="เกิดในบ้าน"           value={`${kpis.homePct}%`}         accent="accent"   animDelay="0.10s" />
-          <KpiCard label="ผู้ถูกกระทำเป็นหญิง" value={`${kpis.vicFemalePct}%`}    accent="victim"   animDelay="0.15s" />
-          <KpiCard label="ผู้กระทำเป็นชาย"     value={`${kpis.offMalePct}%`}      accent="offender" animDelay="0.20s" />
-          <KpiCard label="เด็ก < 12 ปี"         value={kpis.childN}                accent="amber"    animDelay="0.25s" sub="ราย ที่ถูกกระทำ" />
-        </div>
+        <section style={{ marginBottom: 28 }}>
+          <div className="section-head fade-up">
+            <div>
+              <p className="section-label" style={{ marginBottom: 4 }}>
+                Overview
+              </p>
+              <h3 className="section-title">ตัวเลขสำคัญที่หยิบอ่านได้ทันที</h3>
+            </div>
+            <p className="section-copy">
+              เพิ่มขนาดข้อความหลักและแยกสีตามความหมายของข้อมูล เพื่อให้กวาดสายตาแล้วเข้าใจเร็วขึ้น
+            </p>
+          </div>
+          <div className="dashboard-grid-kpi">
+            <KpiCard label="เหตุการณ์ทั้งหมด" value={kpis.total.toLocaleString()} animDelay="0.05s" />
+            <KpiCard label="เกิดในบ้าน" value={`${kpis.homePct}%`} accent="accent" animDelay="0.10s" />
+            <KpiCard label="ผู้ถูกกระทำเป็นหญิง" value={`${kpis.vicFemalePct}%`} accent="victim" animDelay="0.15s" />
+            <KpiCard label="ผู้กระทำเป็นชาย" value={`${kpis.offMalePct}%`} accent="offender" animDelay="0.20s" />
+            <KpiCard label="เด็ก < 12 ปี" value={kpis.childN} accent="amber" animDelay="0.25s" sub="รายที่ถูกกระทำ" />
+          </div>
+        </section>
 
-        {/* Q1: Who */}
-        <p className="section-label fade-up fade-up-3" style={{ marginBottom: 10 }}>Q1 — ใครเสี่ยงที่สุด?</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-          <ButterflyChart data={butterfly} />
-          <RiskChart data={risk} />
-        </div>
+        <section style={{ marginBottom: 24 }}>
+          <div className="section-head fade-up fade-up-3">
+            <div>
+              <p className="section-label" style={{ marginBottom: 4 }}>
+                Q1
+              </p>
+              <h3 className="section-title">ใครเสี่ยงที่สุด</h3>
+            </div>
+            <p className="section-copy">
+              วางสองกราฟคู่กันเพื่อเปรียบเทียบโครงสร้างอายุ-เพศและปัจจัยเสี่ยงในมุมเดียวกัน
+            </p>
+          </div>
+          <div className="dashboard-grid-two">
+            <ButterflyChart data={butterfly} />
+            <RiskChart data={risk} />
+          </div>
+        </section>
 
-        {/* Q2: Where & When */}
-        <p className="section-label fade-up fade-up-4" style={{ marginBottom: 10 }}>Q2 — เกิดที่ไหน เมื่อไหร่?</p>
-        <div style={{ marginBottom: 16 }}>
-          <HeatmapChart data={heatmap} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
-          <PeriodChart data={period} />
-          <RegionChart data={region} />
-        </div>
+        <section style={{ marginBottom: 28 }}>
+          <div className="section-head fade-up fade-up-4">
+            <div>
+              <p className="section-label" style={{ marginBottom: 4 }}>
+                Q2
+              </p>
+              <h3 className="section-title">เกิดที่ไหน และเกิดเมื่อไร</h3>
+            </div>
+            <p className="section-copy">
+              ใช้ heatmap เป็นภาพหลัก แล้วเสริมด้วยกราฟย่อยที่อ่านจำนวนเหตุในแต่ละช่วงเวลาและภูมิภาคได้ชัดขึ้น
+            </p>
+          </div>
+          <div style={{ marginBottom: 18 }}>
+            <HeatmapChart data={heatmap} />
+          </div>
+          <div className="dashboard-grid-two-compact">
+            <PeriodChart data={period} />
+            <RegionChart data={region} />
+          </div>
+        </section>
 
-        {/* Footer */}
-        <footer style={{
-          textAlign: 'center', fontSize: 12, paddingTop: 16,
-          borderTop: '1px solid var(--clr-border)', color: 'var(--clr-muted)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-        }}>
-          <span style={{ display: 'flex', gap: 4 }}>
-            {['var(--clr-offender)','var(--clr-victim)','var(--clr-accent)'].map((c,i) => (
-              <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: c, display: 'inline-block' }} />
-            ))}
-          </span>
-          THackle DataViz Challenge — ข้อมูลสาธารณะ VCIS · Next.js + Recharts
+        <footer
+          style={{
+            borderTop: '1px solid rgba(228, 224, 216, 0.92)',
+            paddingTop: 18,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            color: 'var(--clr-muted)',
+            fontSize: '0.95rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ display: 'flex', gap: 5 }}>
+              {['var(--clr-offender)', 'var(--clr-victim)', 'var(--clr-accent)'].map((color, index) => (
+                <span
+                  key={index}
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: color,
+                    display: 'inline-block',
+                  }}
+                />
+              ))}
+            </span>
+            THackle DataViz Challenge
+          </div>
+          <div>ข้อมูลสาธารณะ VCIS · Next.js + Recharts</div>
         </footer>
       </main>
     </div>
