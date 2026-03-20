@@ -1,88 +1,113 @@
 'use client'
-import { PERIODS } from '@/lib/constants'
 
-type Row = Record<string, string | number>
+import { PERIODS } from '@/lib/constants'
+import type { HeatmapRow } from '@/lib/data'
 
 function getColor(value: number, max: number) {
-  const t = max > 0 ? value / max : 0
-  const r = Math.round(255 - t * (255 - 226))
-  const g = Math.round(255 - t * (255 - 75))
-  const b = Math.round(255 - t * (255 - 74))
-  return t < 0.15 ? '#F7F6F3' : `rgb(${r},${g},${b})`
+  const ratio = max > 0 ? value / max : 0
+  const red = Math.round(247 - ratio * (247 - 217))
+  const green = Math.round(244 - ratio * (244 - 64))
+  const blue = Math.round(238 - ratio * (238 - 64))
+
+  return ratio < 0.12 ? '#F7F4EE' : `rgb(${red}, ${green}, ${blue})`
 }
 
-export default function HeatmapChart({ data }: { data: Row[] }) {
-  const allVals = data.flatMap(row => PERIODS.map(p => Number(row[p] ?? 0)))
-  const maxVal = Math.max(...allVals, 1)
-  const shortPeriod = (p: string) => p.replace(' – ', '–').replace(':00', '')
+const shortPeriod = (period: string) => period.replace(' – ', '–').replace(':00', '')
+
+export default function HeatmapChart({ data }: { data: HeatmapRow[] }) {
+  if (!data.length) {
+    return (
+      <div className="dash-card fade-up" style={{ padding: 22 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, marginBottom: 6 }}>Hotspot จังหวัด × ช่วงเวลา</div>
+        <div style={{ color: 'var(--clr-muted)', fontSize: 14 }}>ไม่มีข้อมูลเหตุการณ์สำหรับตัวกรองนี้</div>
+      </div>
+    )
+  }
+
+  const allValues = data.flatMap((row) => PERIODS.map((period) => Number(row[period] ?? 0)))
+  const maxValue = Math.max(...allValues, 1)
 
   return (
-    <div className="dash-card fade-up p-5">
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div className="dash-card fade-up" style={{ padding: 22 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 19, color: 'var(--clr-text)', lineHeight: 1.2, marginBottom: 4 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1.05, marginBottom: 6 }}>
             Hotspot จังหวัด × ช่วงเวลา
           </div>
-          <div style={{ fontSize: 12, color: 'var(--clr-muted)' }}>
-            Top 10 จังหวัดที่มีเหตุสูงสุด — สีเข้ม = จำนวนมาก
+          <div style={{ color: 'var(--clr-muted)', fontSize: 14 }}>
+            สีเข้มหมายถึงจำนวนเหตุสูง ช่วยเห็นทั้งจังหวัดที่กระจุกตัวและช่วงเวลาที่พุ่งขึ้นพร้อมกัน
           </div>
         </div>
-        <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-subtle)', color: 'var(--clr-muted)', border: '1px solid var(--clr-border)' }}>Top 10</span>
+        <span className="soft-pill" style={{ whiteSpace: 'nowrap', background: 'var(--clr-subtle)' }}>
+          Top 10 จังหวัด
+        </span>
       </div>
-      <div style={{ background: '#FAFAF7', borderRadius: 10, border: '1px solid var(--clr-border)', padding: '14px 14px 8px', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 3 }}>
+
+      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 14px 10px', overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 4 }}>
           <thead>
             <tr>
-              <th className="text-left text-xs pb-2 pr-3" style={{ color: 'var(--clr-muted)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+              <th style={{ color: 'var(--clr-muted)', fontWeight: 600, fontSize: 12, textAlign: 'left', paddingBottom: 8 }}>อันดับ</th>
+              <th style={{ color: 'var(--clr-muted)', fontWeight: 600, fontSize: 12, textAlign: 'left', paddingBottom: 8, whiteSpace: 'nowrap' }}>
                 จังหวัด
               </th>
-              {PERIODS.map(p => (
-                <th key={p} className="text-center text-xs pb-2 px-1" style={{ color: 'var(--clr-muted)', fontWeight: 500, minWidth: 70 }}>
-                  {shortPeriod(p)}
+              {PERIODS.map((period) => (
+                <th
+                  key={period}
+                  style={{
+                    color: 'var(--clr-muted)',
+                    fontWeight: 600,
+                    fontSize: 12,
+                    textAlign: 'center',
+                    paddingBottom: 8,
+                    minWidth: 84,
+                  }}
+                >
+                  {shortPeriod(period)}
                 </th>
               ))}
-              <th className="text-right text-xs pb-2 pl-3" style={{ color: 'var(--clr-muted)', fontWeight: 500 }}>
-                รวม
-              </th>
+              <th style={{ color: 'var(--clr-muted)', fontWeight: 600, fontSize: 12, textAlign: 'right', paddingBottom: 8 }}>รวม</th>
             </tr>
           </thead>
           <tbody>
-            {data.map(row => (
-              <tr key={String(row.province)}>
-                <td className="text-xs pr-3 py-0.5" style={{ whiteSpace: 'nowrap', color: 'var(--clr-text)' }}>
-                  {String(row.province)}
-                </td>
-                {PERIODS.map(p => {
-                  const val = Number(row[p] ?? 0)
-                  const bg = getColor(val, maxVal)
-                  const textColor = val / maxVal > 0.5 ? 'white' : 'var(--clr-text)'
+            {data.map((row, index) => (
+              <tr key={row.province}>
+                <td style={{ color: 'var(--clr-muted)', fontSize: 13, fontWeight: 700 }}>{index + 1}</td>
+                <td style={{ color: 'var(--clr-text)', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>{row.province}</td>
+                {PERIODS.map((period) => {
+                  const value = Number(row[period] ?? 0)
+                  const background = getColor(value, maxValue)
+                  const textColor = value / maxValue > 0.52 ? '#fff' : 'var(--clr-text)'
+
                   return (
                     <td
-                      key={p}
-                      className="text-center text-xs font-medium py-1.5"
+                      key={period}
                       style={{
-                        background: bg,
+                        background,
                         color: textColor,
-                        borderRadius: 6,
-                        minWidth: 52,
+                        borderRadius: 8,
+                        minWidth: 56,
+                        textAlign: 'center',
+                        padding: '8px 10px',
+                        fontSize: 14,
+                        fontWeight: 700,
                       }}
                     >
-                      {val}
+                      {value}
                     </td>
                   )
                 })}
-                <td className="text-right text-xs font-semibold pl-3" style={{ color: 'var(--clr-muted)' }}>
-                  {Number(row.total)}
-                </td>
+                <td style={{ color: 'var(--clr-muted)', fontSize: 14, fontWeight: 700, textAlign: 'right' }}>{row.total}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
-        <span className="text-xs" style={{ color: 'var(--clr-muted)' }}>น้อย</span>
-        <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'linear-gradient(to right, #F7F6F3, #E24B4A)' }} />
-        <span className="text-xs" style={{ color: 'var(--clr-muted)' }}>มาก</span>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, color: 'var(--clr-muted)', fontSize: 13 }}>
+        <span>ต่ำ</span>
+        <div style={{ flex: 1, height: 10, borderRadius: 999, background: 'linear-gradient(to right, #F7F4EE, #D94040)' }} />
+        <span>สูง</span>
       </div>
     </div>
   )

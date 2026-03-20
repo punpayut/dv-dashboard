@@ -1,6 +1,63 @@
 import Papa from 'papaparse'
-import type { IncidentRow, OffenderRow, VictimRow } from './constants'
-import { AGE_ORDER, AGE_SHORT, PERIODS, RISK_COLS, RISK_LABEL } from './constants'
+import type { IncidentRow, OffenderRow, RiskColumn, VictimRow } from './constants'
+import {
+  AGE_ORDER,
+  AGE_SHORT,
+  NO_RISK_PROFILE,
+  PERIODS,
+  PRIVATE_LOCATION,
+  RISK_COLS,
+  RISK_LABEL,
+  YES,
+} from './constants'
+
+export type AgeGenderPeak = {
+  gender: string
+  ageRange: string
+  ageShort: string
+  count: number
+  pct: number
+  label: string
+}
+
+export type GenderLeader = {
+  gender: string
+  count: number
+  pct: number
+}
+
+export type ButterflyRow = {
+  age: string
+  fullAge: string
+  offMale: number
+  offFemale: number
+  vicMale: number
+  vicFemale: number
+}
+
+export type HeatmapRow = {
+  province: string
+  total: number
+  [period: string]: string | number
+}
+
+export type RiskPriorityRow = {
+  factorKey: RiskColumn
+  factor: string
+  count: number
+  pct: number
+  singleCount: number
+  singlePct: number
+  multiCount: number
+  multiPct: number
+  multiShare: number
+}
+
+export type RiskProfileRow = {
+  profile: string
+  count: number
+  pct: number
+}
 
 export async function loadCSV<T>(path: string): Promise<T[]> {
   const res = await fetch(path)
@@ -9,92 +66,239 @@ export async function loadCSV<T>(path: string): Promise<T[]> {
   return result.data
 }
 
-// ── KPIs ──────────────────────────────────────────────────────────────
-export function computeKPIs(
-  incident: IncidentRow[],
-  offender: OffenderRow[],
-  victim: VictimRow[]
-) {
-  const total = incident.length
-  const homePct = Math.round(
-    (incident.filter(r => r.Locale === 'สถานที่ส่วนบุคคล').length / total) * 100
-  )
-  const vicFemalePct = Math.round(
-    (victim.filter(r => r.Gender === 'หญิง').length / victim.length) * 100
-  )
-  const offMalePct = Math.round(
-    (offender.filter(r => r.Gender === 'ชาย').length / offender.length) * 100
-  )
-  const childLabels = ['วัยเด็กเล็กแรกเกิด - 6 ปี', 'วัยเด็กตอนกลาง 7 - 12 ปี']
-  const childN = victim.filter(r => childLabels.includes(r['Age Range'])).length
+const pct = (count: number, total: number, digits = 1) =>
+  Number(((count / (total || 1)) * 100).toFixed(digits))
 
-  return { total, homePct, vicFemalePct, offMalePct, childN }
+const normalizePeriod = (period: string) => period.replace(' – ', '–')
+
+function getTopAgeGenderGroup(rows: Array<{ Gender: string; 'Age Range': string }>): AgeGenderPeak | null {
+  if (!rows.length) return null
+
+  const grouped = new Map<string, AgeGenderPeak>()
+
+  rows.forEach((row) => {
+    const key = `${row.Gender}__${row['Age Range']}`
+    const current = grouped.get(key)
+
+    if (current) {
+      current.count += 1
+      current.pct = pct(current.count, rows.length)
+      return
+    }
+
+    grouped.set(key, {
+      gender: row.Gender,
+      ageRange: row['Age Range'],
+      ageShort: AGE_SHORT[row['Age Range']] ?? row['Age Range'],
+      count: 1,
+      pct: pct(1, rows.length),
+      label: `${row.Gender} · ${row['Age Range']}`,
+    })
+  })
+
+  return [...grouped.values()].sort((a, b) => b.count - a.count)[0] ?? null
 }
 
-// ── Butterfly ─────────────────────────────────────────────────────────
-export function computeButterfly(offender: OffenderRow[], victim: VictimRow[]) {
-  const groups = AGE_ORDER.map(age => {
-    const offM = offender.filter(r => r['Age Range'] === age && r.Gender === 'ชาย').length
-    const offF = offender.filter(r => r['Age Range'] === age && r.Gender === 'หญิง').length
-    const vicM = victim.filter(r => r['Age Range'] === age && r.Gender === 'ชาย').length
-    const vicF = victim.filter(r => r['Age Range'] === age && r.Gender === 'หญิง').length
-    const offTotal = offender.length || 1
-    const vicTotal = victim.length || 1
+function getDominantGender(rows: Array<{ Gender: string }>): GenderLeader | null {
+  if (!rows.length) return null
+
+  const counts = [...getCounts(rows, (row) => row.Gender).entries()].sort((a, b) => b[1] - a[1])
+  const [gender, count = 0] = counts[0] ?? ['', 0]
+
+  return {
+    gender,
+    count,
+    pct: pct(count, rows.length),
+  }
+}
+
+function getCounts<T>(rows: T[], getKey: (row: T) => string) {
+  const counts = new Map<string, number>()
+
+  rows.forEach((row) => {
+    const key = getKey(row)
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  })
+
+  return counts
+}
+
+export function computeKPIs(incident: IncidentRow[], offender: OffenderRow[], victim: VictimRow[]) {
+  const childRanges = AGE_ORDER.slice(0, 2)
+
+  return {
+    total: incident.length,
+    privatePct: pct(
+      incident.filter((row) => row.Locale === PRIVATE_LOCATION).length,
+      incident.length,
+      0
+    ),
+    vicFemalePct: pct(victim.filter((row) => row.Gender === 'หญิง').length, victim.length),
+    offMalePct: pct(offender.filter((row) => row.Gender === 'ชาย').length, offender.length),
+    childVictimCount: victim.filter((row) => childRanges.includes(row['Age Range'])).length,
+  }
+}
+
+export function computeWhoSummary(offender: OffenderRow[], victim: VictimRow[]) {
+  return {
+    offenderPeak: getTopAgeGenderGroup(offender),
+    victimPeak: getTopAgeGenderGroup(victim),
+    offenderLeader: getDominantGender(offender),
+    victimLeader: getDominantGender(victim),
+    offenderMalePct: pct(offender.filter((row) => row.Gender === 'ชาย').length, offender.length),
+    victimFemalePct: pct(victim.filter((row) => row.Gender === 'หญิง').length, victim.length),
+  }
+}
+
+export function computeButterfly(offender: OffenderRow[], victim: VictimRow[]): ButterflyRow[] {
+  const offenderTotal = offender.length || 1
+  const victimTotal = victim.length || 1
+
+  return AGE_ORDER.map((ageRange) => {
+    const offMale = offender.filter((row) => row['Age Range'] === ageRange && row.Gender === 'ชาย').length
+    const offFemale = offender.filter((row) => row['Age Range'] === ageRange && row.Gender === 'หญิง').length
+    const vicMale = victim.filter((row) => row['Age Range'] === ageRange && row.Gender === 'ชาย').length
+    const vicFemale = victim.filter((row) => row['Age Range'] === ageRange && row.Gender === 'หญิง').length
+
     return {
-      age: AGE_SHORT[age] ?? age,
-      fullAge: age,
-      offMale: -parseFloat(((offM / offTotal) * 100).toFixed(1)),
-      offFemale: -parseFloat(((offF / offTotal) * 100).toFixed(1)),
-      vicMale: parseFloat(((vicM / vicTotal) * 100).toFixed(1)),
-      vicFemale: parseFloat(((vicF / vicTotal) * 100).toFixed(1)),
+      age: AGE_SHORT[ageRange] ?? ageRange,
+      fullAge: ageRange,
+      offMale: -Number(((offMale / offenderTotal) * 100).toFixed(1)),
+      offFemale: -Number(((offFemale / offenderTotal) * 100).toFixed(1)),
+      vicMale: Number(((vicMale / victimTotal) * 100).toFixed(1)),
+      vicFemale: Number(((vicFemale / victimTotal) * 100).toFixed(1)),
     }
   })
-  return groups
 }
 
-// ── Heatmap province × period ─────────────────────────────────────────
-export function computeHeatmap(incident: IncidentRow[]) {
-  const provCounts: Record<string, number> = {}
-  incident.forEach(r => { provCounts[r.Province] = (provCounts[r.Province] ?? 0) + 1 })
-  const top10 = Object.entries(provCounts)
+export function computeHeatmap(incident: IncidentRow[]): HeatmapRow[] {
+  if (!incident.length) return []
+
+  const provinceTotals = getCounts(incident, (row) => row.Province)
+  const topProvinces = [...provinceTotals.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
-    .map(e => e[0])
+    .map(([province]) => province)
 
-  return top10.map(prov => {
-    const row: Record<string, string | number> = { province: prov }
-    PERIODS.forEach(p => {
-      row[p] = incident.filter(r => r.Province === prov && r.Period === p).length
+  const provincePeriodCounts = getCounts(incident, (row) => `${row.Province}__${row.Period}`)
+
+  return topProvinces
+    .map((province) => {
+      const row: HeatmapRow = { province, total: provinceTotals.get(province) ?? 0 }
+
+      PERIODS.forEach((period) => {
+        row[period] = provincePeriodCounts.get(`${province}__${period}`) ?? 0
+      })
+
+      return row
     })
-    row.total = incident.filter(r => r.Province === prov).length
-    return row
-  }).sort((a, b) => (b.total as number) - (a.total as number))
+    .sort((a, b) => b.total - a.total)
 }
 
-// ── Risk factors ──────────────────────────────────────────────────────
-export function computeRisk(offender: OffenderRow[], victim: VictimRow[]) {
-  return RISK_COLS.map(col => {
-    const offYes = offender.filter(r => r[col] === 'ใช่').length
-    const vicYes = victim.filter(r => r[col] === 'ใช่').length
-    const offPct = parseFloat(((offYes / (offender.length || 1)) * 100).toFixed(1))
-    const vicPct = parseFloat(((vicYes / (victim.length || 1)) * 100).toFixed(1))
-    return { factor: RISK_LABEL[col] ?? col, offPct, vicPct, offYes, vicYes }
-  }).sort((a, b) => b.offPct - a.offPct)
+export function computeHotspotSummary(incident: IncidentRow[]) {
+  const provinceCounts = [...getCounts(incident, (row) => row.Province).entries()].sort((a, b) => b[1] - a[1])
+  const periodCounts = [...getCounts(incident, (row) => row.Period).entries()].sort((a, b) => b[1] - a[1])
+  const localeCounts = [...getCounts(incident, (row) => row.Locale).entries()].sort((a, b) => b[1] - a[1])
+  const provincePeriodCounts = [...getCounts(incident, (row) => `${row.Province}__${row.Period}`).entries()].sort(
+    (a, b) => b[1] - a[1]
+  )
+
+  const [topProvince, topProvinceCount = 0] = provinceCounts[0] ?? ['', 0]
+  const [topPeriod, topPeriodCount = 0] = periodCounts[0] ?? ['', 0]
+  const [topLocale, topLocaleCount = 0] = localeCounts[0] ?? ['', 0]
+  const [topProvincePeriodKey, topProvincePeriodCount = 0] = provincePeriodCounts[0] ?? ['', 0]
+  const [hotspotProvince = '', hotspotPeriod = ''] = topProvincePeriodKey.split('__')
+
+  return {
+    topProvince: {
+      label: topProvince,
+      count: topProvinceCount,
+      pct: pct(topProvinceCount, incident.length),
+    },
+    topPeriod: {
+      label: topPeriod,
+      shortLabel: normalizePeriod(topPeriod),
+      count: topPeriodCount,
+      pct: pct(topPeriodCount, incident.length),
+    },
+    topLocale: {
+      label: topLocale,
+      count: topLocaleCount,
+      pct: pct(topLocaleCount, incident.length),
+    },
+    topProvincePeriod: {
+      province: hotspotProvince,
+      period: hotspotPeriod,
+      shortPeriod: normalizePeriod(hotspotPeriod),
+      count: topProvincePeriodCount,
+    },
+  }
 }
 
-// ── Period distribution ───────────────────────────────────────────────
+export function computeRiskPriority(offender: OffenderRow[]): RiskPriorityRow[] {
+  const total = offender.length || 1
+
+  return RISK_COLS.map((column) => {
+    const factorRows = offender.filter((row) => row[column] === YES)
+    const multiFactorRows = factorRows.filter((row) => Number(row.risk_count || 0) >= 2)
+    const singleCount = factorRows.length - multiFactorRows.length
+
+    return {
+      factorKey: column,
+      factor: RISK_LABEL[column],
+      count: factorRows.length,
+      pct: pct(factorRows.length, total),
+      singleCount,
+      singlePct: pct(singleCount, total),
+      multiCount: multiFactorRows.length,
+      multiPct: pct(multiFactorRows.length, total),
+      multiShare: pct(multiFactorRows.length, factorRows.length || 1),
+    }
+  }).sort((a, b) => b.count - a.count)
+}
+
+export function computeRiskProfiles(offender: OffenderRow[]) {
+  const total = offender.length || 1
+  const profileCounts = [...getCounts(offender, (row) => row.risk_profile).entries()].sort((a, b) => b[1] - a[1])
+  const topProfile = profileCounts.find(([profile]) => profile !== NO_RISK_PROFILE)
+  const noRiskCount = profileCounts.find(([profile]) => profile === NO_RISK_PROFILE)?.[1] ?? 0
+  const multiFactorCount = offender.filter((row) => Number(row.risk_count || 0) >= 2).length
+  const highRiskCount = offender.filter((row) => Number(row.risk_count || 0) >= 3).length
+
+  return {
+    noRiskCount,
+    noRiskPct: pct(noRiskCount, total),
+    multiFactorCount,
+    multiFactorPct: pct(multiFactorCount, total),
+    highRiskCount,
+    highRiskPct: pct(highRiskCount, total),
+    topProfile:
+      topProfile && topProfile[0] !== NO_RISK_PROFILE
+        ? {
+            profile: topProfile[0],
+            count: topProfile[1],
+            pct: pct(topProfile[1], total),
+          }
+        : null,
+    topProfiles: profileCounts.slice(0, 6).map(([profile, count]) => ({
+      profile,
+      count,
+      pct: pct(count, total),
+    })) satisfies RiskProfileRow[],
+  }
+}
+
 export function computePeriod(incident: IncidentRow[]) {
-  return PERIODS.map(p => ({
-    period: p.replace(' – ', '–'),
-    count: incident.filter(r => r.Period === p).length,
+  const counts = getCounts(incident, (row) => row.Period)
+
+  return PERIODS.map((period) => ({
+    period: normalizePeriod(period),
+    count: counts.get(period) ?? 0,
   }))
 }
 
-// ── Region distribution ───────────────────────────────────────────────
 export function computeRegion(incident: IncidentRow[]) {
-  const counts: Record<string, number> = {}
-  incident.forEach(r => { counts[r.Regional] = (counts[r.Regional] ?? 0) + 1 })
-  return Object.entries(counts)
+  return [...getCounts(incident, (row) => row.Regional).entries()]
     .map(([region, count]) => ({ region, count }))
     .sort((a, b) => b.count - a.count)
 }

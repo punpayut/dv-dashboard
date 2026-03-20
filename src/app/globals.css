@@ -212,6 +212,12 @@ body::after {
   gap: 18px;
 }
 
+.dashboard-grid-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.95fr);
+  gap: 18px;
+}
+
 .section-head {
   display: flex;
   align-items: flex-end;
@@ -283,7 +289,8 @@ body::after {
   }
 
   .dashboard-grid-two,
-  .dashboard-grid-two-compact {
+  .dashboard-grid-two-compact,
+  .dashboard-grid-split {
     grid-template-columns: 1fr;
   }
 

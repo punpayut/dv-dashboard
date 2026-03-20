@@ -1,30 +1,38 @@
 'use client'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 type PeriodRow = { period: string; count: number }
 type RegionRow = { region: string; count: number }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const TooltipCard = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{ value: number }>
+  label?: string
+}) => {
   if (!active || !payload?.length) return null
+
   return (
     <div className="custom-tooltip">
-      <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{label}</p>
-      <p style={{ fontSize: 12, color: 'var(--clr-muted)' }}>{payload[0].value.toLocaleString()} เหตุ</p>
+      <p style={{ fontWeight: 700, marginBottom: 4 }}>{label}</p>
+      <p style={{ fontSize: 13, color: 'var(--clr-muted)' }}>{payload[0].value.toLocaleString()} เหตุ</p>
     </div>
   )
 }
 
 function ChartHeader({ title, subtitle, badge }: { title: string; subtitle: string; badge?: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
       <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--clr-text)', lineHeight: 1.2, marginBottom: 4 }}>
-          {title}
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--clr-muted)' }}>{subtitle}</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1.05, marginBottom: 6 }}>{title}</div>
+        <div style={{ color: 'var(--clr-muted)', fontSize: 14 }}>{subtitle}</div>
       </div>
       {badge && (
-        <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: 'var(--clr-subtle)', color: 'var(--clr-muted)', border: '1px solid var(--clr-border)', whiteSpace: 'nowrap' }}>
+        <span className="soft-pill" style={{ whiteSpace: 'nowrap', background: 'var(--clr-subtle)' }}>
           {badge}
         </span>
       )}
@@ -33,24 +41,31 @@ function ChartHeader({ title, subtitle, badge }: { title: string; subtitle: stri
 }
 
 export function PeriodChart({ data }: { data: PeriodRow[] }) {
-  const max = Math.max(...data.map(d => d.count))
+  const max = Math.max(...data.map((row) => row.count), 1)
+
   return (
-    <div className="dash-card fade-up" style={{ padding: '20px 20px 14px' }}>
-      <ChartHeader title="ช่วงเวลาที่เกิดเหตุ" subtitle="จำนวนเหตุแยกตามช่วงเวลา" badge="4 ช่วง" />
-      <div style={{ background: '#FAFAF7', borderRadius: 10, border: '1px solid var(--clr-border)', padding: '12px 4px 4px' }}>
-        <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={data} barCategoryGap="30%" margin={{ top: 0, right: 12, bottom: 0, left: 0 }}>
-            <CartesianGrid vertical stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />
+    <div className="dash-card fade-up" style={{ padding: '22px 22px 16px' }}>
+      <ChartHeader title="ช่วงเวลาที่เกิดเหตุ" subtitle="จำนวนเหตุทั้งหมดในแต่ละช่วงเวลา" badge="4 ช่วงเวลา" />
+      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} barCategoryGap="28%" margin={{ top: 10, right: 12, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />
             <XAxis
               dataKey="period"
-              tick={{ fontSize: 10, fill: '#888680', fontFamily: 'var(--font-body)' }}
-              axisLine={{ stroke: '#E4E1DA' }} tickLine={false}
+              tick={{ fontSize: 12, fill: '#7A7568', fontFamily: 'var(--font-body)' }}
+              axisLine={{ stroke: '#E4E1DA' }}
+              tickLine={false}
             />
             <YAxis hide />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.035)' }} />
-            <Bar dataKey="count" radius={[5,5,0,0]} maxBarSize={52} label={{ position: 'top', fontSize: 11, fill: '#6A6659', fontFamily: 'var(--font-body)' }}>
-              {data.map(d => (
-                <Cell key={d.period} fill={d.count === max ? '#D94040' : '#B5D4F4'} />
+            <Tooltip content={<TooltipCard />} cursor={{ fill: 'rgba(24,22,15,0.04)' }} />
+            <Bar
+              dataKey="count"
+              radius={[8, 8, 0, 0]}
+              maxBarSize={60}
+              label={{ position: 'top', fontSize: 12, fill: '#6A6659', fontFamily: 'var(--font-body)' }}
+            >
+              {data.map((row) => (
+                <Cell key={row.period} fill={row.count === max ? '#D94040' : '#C9DEF4'} />
               ))}
             </Bar>
           </BarChart>
@@ -62,24 +77,30 @@ export function PeriodChart({ data }: { data: PeriodRow[] }) {
 
 export function RegionChart({ data }: { data: RegionRow[] }) {
   return (
-    <div className="dash-card fade-up" style={{ padding: '20px 20px 14px' }}>
-      <ChartHeader title="เหตุแยกตามภูมิภาค" subtitle="จำนวนเหตุที่รายงาน" />
-      <div style={{ background: '#FAFAF7', borderRadius: 10, border: '1px solid var(--clr-border)', padding: '12px 4px 4px' }}>
-        <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={data} layout="vertical" barCategoryGap="28%" margin={{ top: 0, right: 40, bottom: 0, left: 0 }}>
+    <div className="dash-card fade-up" style={{ padding: '22px 22px 16px' }}>
+      <ChartHeader title="การกระจายตามภูมิภาค" subtitle="จำนวนเหตุที่รายงานในแต่ละภูมิภาค" />
+      <div style={{ background: '#FAFAF7', borderRadius: 16, border: '1px solid var(--clr-border)', padding: '14px 8px 4px' }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} layout="vertical" barCategoryGap="24%" margin={{ top: 0, right: 40, bottom: 0, left: 18 }}>
             <CartesianGrid horizontal={false} stroke="#E4E1DA" strokeDasharray="4 4" strokeWidth={0.8} />
             <XAxis type="number" hide />
             <YAxis
-              type="category" dataKey="region" width={138}
-              tick={{ fontSize: 12, fill: '#2C2A24', fontWeight: 500, fontFamily: 'var(--font-body)' }}
-              axisLine={false} tickLine={false}
+              type="category"
+              dataKey="region"
+              width={150}
+              tick={{ fontSize: 13, fill: '#2C2A24', fontWeight: 600, fontFamily: 'var(--font-body)' }}
+              axisLine={false}
+              tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.035)' }} />
-            <Bar dataKey="count" radius={[0,5,5,0]} maxBarSize={22}
-              label={{ position: 'right', fontSize: 11, fill: '#6A6659', fontFamily: 'var(--font-body)' }}
+            <Tooltip content={<TooltipCard />} cursor={{ fill: 'rgba(24,22,15,0.04)' }} />
+            <Bar
+              dataKey="count"
+              radius={[0, 8, 8, 0]}
+              maxBarSize={24}
+              label={{ position: 'right', fontSize: 12, fill: '#6A6659', fontFamily: 'var(--font-body)' }}
             >
-              {data.map((d, i) => (
-                <Cell key={d.region} fill={i === 0 ? '#534AB7' : '#CECBF6'} />
+              {data.map((row, index) => (
+                <Cell key={row.region} fill={index === 0 ? '#0C6147' : '#BFDCCE'} />
               ))}
             </Bar>
           </BarChart>
